@@ -3,1121 +3,1090 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matriz de Riesgo Deportivo — Club Analyzer</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Mills Capital — Sports Risk Analytics</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0c10;
-    --surface: #111318;
-    --surface2: #181c24;
-    --border: #232830;
-    --accent: #00e5a0;
-    --accent2: #ff4d6d;
-    --accent3: #ffc857;
-    --text: #e8eaf0;
-    --muted: #6b7280;
-    --score-low: #00e5a0;
-    --score-mid: #ffc857;
-    --score-high: #ff4d6d;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: "DM Sans", sans-serif; min-height: 100vh; }
-
-  /* HEADER */
-  header {
-    background: linear-gradient(135deg, #0a0c10 0%, #111820 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 24px 40px;
-    display: flex; align-items: center; gap: 20px;
-  }
-  .logo-mark {
-    width: 48px; height: 48px;
-    background: var(--accent);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display: flex; align-items: center; justify-content: center;
-    font-family: "Bebas Neue"; font-size: 20px; color: #0a0c10;
-    flex-shrink: 0;
-  }
-  header h1 { font-family: "Bebas Neue"; font-size: 32px; letter-spacing: 3px; color: var(--text); }
-  header span { font-size: 13px; color: var(--muted); letter-spacing: 1px; }
-  .header-right { margin-left: auto; text-align: right; }
-  .header-right .tag {
-    display: inline-block; background: rgba(0,229,160,.12); color: var(--accent);
-    border: 1px solid rgba(0,229,160,.3); padding: 4px 12px; border-radius: 20px;
-    font-size: 11px; font-family: "Space Mono"; letter-spacing: 1px;
-  }
-
-  /* LAYOUT */
-  .main { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 97px); }
-
-  /* SIDEBAR */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 28px 20px;
-    display: flex; flex-direction: column; gap: 20px;
-    overflow-y: auto; max-height: calc(100vh - 97px);
-  }
-  .sidebar-title { font-family: "Space Mono"; font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 0 4px; }
-  .search-box {
-    position: relative;
-  }
-  .search-box input {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 10px 12px 10px 36px;
-    border-radius: 8px; font-family: "DM Sans"; font-size: 13px; outline: none;
-    transition: border-color .2s;
-  }
-  .search-box input:focus { border-color: var(--accent); }
-  .search-box::before {
-    content: "⌕"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    color: var(--muted); font-size: 16px; pointer-events: none;
-  }
-  .comp-filter select {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); padding: 10px 12px; border-radius: 8px;
-    font-family: "DM Sans"; font-size: 13px; outline: none; cursor: pointer;
-  }
-  .club-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-  .club-item {
-    padding: 10px 12px; border-radius: 8px; cursor: pointer;
-    transition: all .15s; border: 1px solid transparent;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .club-item:hover { background: var(--surface2); border-color: var(--border); }
-  .club-item.active { background: rgba(0,229,160,.1); border-color: var(--accent); }
-  .club-item .ci-code { font-family: "Space Mono"; font-size: 10px; color: var(--muted); min-width: 44px; }
-  .club-item .ci-name { font-size: 13px; font-weight: 500; }
-  .club-item .ci-comp { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
-  .club-count { font-family: "Space Mono"; font-size: 11px; color: var(--muted); padding: 0 4px; }
-
-  /* CONTENT */
-  .content { padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; }
-  .welcome {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 400px; gap: 16px; color: var(--muted);
-  }
-  .welcome .w-icon { font-size: 64px; opacity: .3; }
-  .welcome h2 { font-family: "Bebas Neue"; font-size: 28px; letter-spacing: 2px; color: var(--muted); }
-  .welcome p { font-size: 14px; text-align: center; max-width: 300px; }
-
-  /* CLUB HEADER */
-  .club-header {
-    display: flex; align-items: flex-start; gap: 20px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 24px;
-  }
-  .club-badge {
-    width: 64px; height: 64px; border-radius: 12px;
-    background: linear-gradient(135deg, #1a2030, #232b3a);
-    display: flex; align-items: center; justify-content: center;
-    font-family: "Bebas Neue"; font-size: 22px; color: var(--accent);
-    border: 1px solid var(--border); flex-shrink: 0;
-  }
-  .club-meta h2 { font-family: "Bebas Neue"; font-size: 30px; letter-spacing: 2px; margin-bottom: 4px; }
-  .club-meta .badges { display: flex; gap: 8px; flex-wrap: wrap; }
-  .badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: var(--surface2); border: 1px solid var(--border);
-    padding: 4px 10px; border-radius: 20px; font-size: 11px; color: var(--muted);
-    font-family: "Space Mono";
-  }
-  .badge.accent { border-color: rgba(0,229,160,.4); color: var(--accent); background: rgba(0,229,160,.08); }
-
-  /* SCORE CARD */
-  .score-section {
-    display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px;
-  }
-  .score-dial {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-  }
-  .score-ring {
-    width: 140px; height: 140px; position: relative;
-  }
-  .score-ring svg { width: 100%; height: 100%; }
-  .score-ring .score-num {
-    position: absolute; inset: 0; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-  }
-  .score-ring .score-num .sn-val { font-family: "Bebas Neue"; font-size: 40px; line-height: 1; }
-  .score-ring .score-num .sn-max { font-size: 11px; color: var(--muted); font-family: "Space Mono"; }
-  .score-label { font-family: "Bebas Neue"; font-size: 16px; letter-spacing: 2px; }
-  .score-grade {
-    padding: 6px 18px; border-radius: 20px; font-family: "Bebas Neue"; font-size: 20px; letter-spacing: 3px;
-  }
-  .score-grade.AAA { background: rgba(0,229,160,.15); color: #00e5a0; border: 1px solid rgba(0,229,160,.4); }
-  .score-grade.AA { background: rgba(0,229,160,.1); color: #00c988; border: 1px solid rgba(0,201,136,.4); }
-  .score-grade.A { background: rgba(255,200,87,.1); color: #ffc857; border: 1px solid rgba(255,200,87,.4); }
-  .score-grade.BBB { background: rgba(255,200,87,.08); color: #e5a030; border: 1px solid rgba(229,160,48,.3); }
-  .score-grade.BB { background: rgba(255,77,109,.1); color: #ff4d6d; border: 1px solid rgba(255,77,109,.3); }
-  .score-grade.B, .score-grade.CCC { background: rgba(255,77,109,.15); color: #ff2044; border: 1px solid rgba(255,32,68,.4); }
-
-  .score-details { display: flex; flex-direction: column; gap: 12px; }
-  .score-row {
-    display: grid; grid-template-columns: 1fr 80px 16px 60px;
-    align-items: center; gap: 8px; padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .score-row:last-child { border-bottom: none; }
-  .sr-label { font-size: 13px; color: var(--muted); }
-  .sr-bar-wrap { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-  .sr-bar { height: 100%; border-radius: 3px; transition: width .6s ease; }
-  .sr-val { font-family: "Space Mono"; font-size: 12px; text-align: right; }
-  .sr-max { font-family: "Space Mono"; font-size: 11px; color: var(--muted); }
-
-  /* METRICS GRID */
-  .section-title {
-    font-family: "Bebas Neue"; font-size: 20px; letter-spacing: 3px; color: var(--accent);
-    border-bottom: 1px solid var(--border); padding-bottom: 8px;
-  }
-  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-  .metric-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px; display: flex; flex-direction: column; gap: 6px;
-    transition: border-color .2s;
-  }
-  .metric-card:hover { border-color: rgba(0,229,160,.3); }
-  .metric-card .mc-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .metric-card .mc-value { font-family: "Space Mono"; font-size: 22px; font-weight: 700; color: var(--text); }
-  .metric-card .mc-sub { font-size: 11px; color: var(--muted); }
-  .metric-card.highlight { border-color: rgba(0,229,160,.3); background: rgba(0,229,160,.04); }
-  .metric-card.warning { border-color: rgba(255,200,87,.3); background: rgba(255,200,87,.04); }
-  .metric-card.danger { border-color: rgba(255,77,109,.3); background: rgba(255,77,109,.04); }
-
-  /* INPUT FORM */
-  .input-panel {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px;
-  }
-  .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
-  .input-group { display: flex; flex-direction: column; gap: 6px; }
-  .input-group label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .input-group input {
-    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-    padding: 10px 12px; border-radius: 8px; font-family: "Space Mono"; font-size: 13px; outline: none;
-    transition: border-color .2s;
-  }
-  .input-group input:focus { border-color: var(--accent); }
-  .input-group input.has-value { border-color: rgba(0,229,160,.4); }
-  .input-divider { font-family: "Bebas Neue"; font-size: 13px; letter-spacing: 2px; color: var(--muted); grid-column: 1 / -1; padding-top: 8px; border-top: 1px solid var(--border); }
-
-  .calc-btn {
-    margin-top: 20px; padding: 14px 32px;
-    background: var(--accent); color: #0a0c10;
-    border: none; border-radius: 8px; cursor: pointer;
-    font-family: "Bebas Neue"; font-size: 18px; letter-spacing: 3px;
-    transition: all .2s; display: inline-block;
-  }
-  .calc-btn:hover { background: #00c988; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,229,160,.3); }
-  .calc-btn:active { transform: translateY(0); }
-
-  /* VAR SECTION */
-  .var-panel {
-    background: var(--surface); border: 1px solid rgba(255,77,109,.2); border-radius: 12px; padding: 24px;
-  }
-  .var-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
-  .var-metric {
-    background: var(--surface2); border-radius: 8px; padding: 16px;
-    border-left: 3px solid var(--accent2);
-  }
-  .var-metric.green { border-left-color: var(--accent); }
-  .var-metric.yellow { border-left-color: var(--accent3); }
-  .var-metric .vm-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .var-metric .vm-val { font-family: "Bebas Neue"; font-size: 28px; margin-top: 4px; }
-  .var-metric .vm-desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-  /* PROB */
-  .prob-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
-  .prob-card {
-    background: var(--surface2); border-radius: 10px; padding: 20px; text-align: center;
-    border: 1px solid var(--border);
-  }
-  .prob-card .pc-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
-  .prob-card .pc-val { font-family: "Bebas Neue"; font-size: 42px; }
-  .prob-card .pc-val.green { color: var(--accent); }
-  .prob-card .pc-val.yellow { color: var(--accent3); }
-  .prob-card .pc-val.red { color: var(--accent2); }
-  .prob-card .pc-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 12px; overflow: hidden; }
-  .prob-card .pc-fill { height: 100%; border-radius: 3px; }
-  .prob-card .pc-desc { font-size: 11px; color: var(--muted); margin-top: 8px; }
-
-  /* TRANSFER ANALYSIS */
-  .transfer-chart { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-  .transfer-row { display: flex; align-items: center; gap: 12px; }
-  .transfer-row .tr-label { font-size: 12px; color: var(--muted); min-width: 100px; }
-  .transfer-row .tr-bars { flex: 1; display: flex; gap: 4px; align-items: center; }
-  .tr-in { background: var(--accent); height: 20px; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 10px; color: #000; font-family: "Space Mono"; min-width: 20px; }
-  .tr-out { background: var(--accent2); height: 20px; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; font-size: 10px; color: #fff; font-family: "Space Mono"; min-width: 20px; }
-
-  /* RISK MATRIX TABLE */
-  .risk-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-  .risk-table th {
-    background: var(--surface2); color: var(--muted);
-    font-family: "Space Mono"; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
-    padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border);
-  }
-  .risk-table td { padding: 10px 12px; border-bottom: 1px solid rgba(35,40,48,.5); font-size: 13px; }
-  .risk-table tr:hover td { background: rgba(255,255,255,.02); }
-  .risk-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-  .risk-dot.low { background: var(--accent); }
-  .risk-dot.mid { background: var(--accent3); }
-  .risk-dot.high { background: var(--accent2); }
-
-  .hidden { display: none !important; }
-  .loading { text-align: center; color: var(--muted); padding: 60px; font-family: "Space Mono"; font-size: 13px; }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-  @media (max-width: 900px) {
-    .main { grid-template-columns: 1fr; }
-    .sidebar { max-height: 300px; }
-    .score-section { grid-template-columns: 1fr; }
-    .var-grid, .prob-grid { grid-template-columns: 1fr; }
-  }
+/* ===== MILLS CAPITAL BRAND TOKENS ===== */
+:root {
+  --financial-green: #163029;
+  --human-vert: #6fa087;
+  --trust-green: #9ABCAA;
+  --ivory: #F9F1E8;
+  --ivory-dark: #ede5dc;
+  --black: #0d0d0d;
+  --white: #ffffff;
+  --text-dark: #1a1a1a;
+  --text-mid: #4a5046;
+  --text-muted: #8a9488;
+  --border-light: rgba(22,48,41,.12);
+  --border-green: rgba(111,160,135,.3);
+  --shadow: 0 4px 32px rgba(22,48,41,.12);
+  --shadow-lg: 0 12px 64px rgba(22,48,41,.18);
+  font-size: 16px;
+}
+ 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: "Satoshi", sans-serif;
+  background: var(--ivory);
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+ 
+/* ===== NAV ===== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--financial-green);
+  height: 64px;
+  display: flex; align-items: center;
+  padding: 0 40px;
+  border-bottom: 1px solid rgba(111,160,135,.2);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 14px;
+}
+.nav-m {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+}
+/* SVG M logo from brandbook */
+.nav-m svg { width: 36px; height: 28px; }
+.nav-wordmark {
+  font-family: "Satoshi"; font-weight: 500;
+  font-size: 17px; letter-spacing: .02em; color: var(--ivory);
+}
+.nav-claim {
+  font-size: 11px; color: var(--human-vert); letter-spacing: .12em;
+  text-transform: uppercase; margin-left: 20px;
+  border-left: 1px solid rgba(111,160,135,.4); padding-left: 20px;
+}
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.nav-tag {
+  background: rgba(111,160,135,.15); color: var(--trust-green);
+  border: 1px solid rgba(111,160,135,.25); padding: 5px 14px;
+  border-radius: 2px; font-size: 11px; letter-spacing: .08em;
+  font-weight: 500;
+}
+ 
+/* ===== LAYOUT ===== */
+.app {
+  display: grid; grid-template-columns: 300px 1fr;
+  min-height: 100vh; padding-top: 64px;
+}
+ 
+/* ===== SIDEBAR ===== */
+.sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--border-light);
+  height: calc(100vh - 64px); position: sticky; top: 64px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-top {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--ivory);
+}
+.sidebar-label {
+  font-size: 10px; letter-spacing: .14em; color: var(--text-muted);
+  text-transform: uppercase; font-weight: 500; margin-bottom: 12px;
+}
+.search-wrap { position: relative; margin-bottom: 10px; }
+.search-wrap input {
+  width: 100%; padding: 10px 12px 10px 36px;
+  background: var(--white); border: 1px solid var(--border-light);
+  border-radius: 2px; font-family: "Satoshi"; font-size: 13px;
+  color: var(--text-dark); outline: none; transition: border-color .2s;
+}
+.search-wrap input::placeholder { color: var(--text-muted); }
+.search-wrap input:focus { border-color: var(--human-vert); }
+.search-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 14px; pointer-events: none;
+}
+.comp-select select {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border-light);
+  background: var(--white); border-radius: 2px; font-family: "Satoshi";
+  font-size: 12px; color: var(--text-dark); outline: none; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236fa087' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.sidebar-count {
+  padding: 8px 20px; font-size: 11px; color: var(--text-muted);
+  letter-spacing: .04em; border-bottom: 1px solid var(--border-light);
+  background: var(--white);
+}
+.club-list {
+  flex: 1; overflow-y: auto; padding: 8px 0;
+}
+.club-item {
+  padding: 11px 20px; cursor: pointer; display: flex; align-items: center;
+  gap: 10px; transition: background .15s; border-left: 2px solid transparent;
+}
+.club-item:hover { background: var(--ivory); }
+.club-item.active {
+  background: rgba(22,48,41,.06); border-left-color: var(--financial-green);
+}
+.ci-code {
+  font-size: 10px; color: var(--text-muted); min-width: 38px;
+  letter-spacing: .04em;
+}
+.ci-name { font-size: 13px; font-weight: 500; color: var(--text-dark); flex: 1; }
+.ci-flag {
+  font-size: 10px; color: var(--human-vert); text-align: right;
+  max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+ 
+/* Sidebar scrollbar */
+.club-list::-webkit-scrollbar { width: 4px; }
+.club-list::-webkit-scrollbar-track { background: transparent; }
+.club-list::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+ 
+/* ===== MAIN CONTENT ===== */
+.content { overflow-y: auto; background: var(--ivory); }
+ 
+/* WELCOME */
+.welcome {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: calc(100vh - 64px); text-align: center; padding: 60px 40px;
+  position: relative; overflow: hidden;
+}
+.welcome-bg {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.welcome-geo {
+  position: absolute; right: -60px; bottom: -80px;
+  width: 500px; height: 500px;
+  background: linear-gradient(135deg, var(--financial-green) 0%, var(--human-vert) 100%);
+  clip-path: polygon(30% 0%, 100% 0%, 100% 70%, 70% 100%, 0% 100%);
+  opacity: .07;
+}
+.welcome-geo2 {
+  position: absolute; left: -40px; top: 60px;
+  width: 280px; height: 280px;
+  background: var(--human-vert);
+  clip-path: polygon(0 0, 60% 0, 100% 40%, 100% 100%, 0 100%);
+  opacity: .06;
+}
+.welcome-m {
+  width: 72px; height: 56px; margin-bottom: 28px; opacity: .15;
+}
+.welcome h2 {
+  font-size: 38px; font-weight: 700; color: var(--financial-green);
+  letter-spacing: -.02em; line-height: 1.1; margin-bottom: 14px;
+}
+.welcome p {
+  font-size: 15px; color: var(--text-mid); max-width: 340px;
+  line-height: 1.7; font-weight: 400;
+}
+.welcome-sub {
+  margin-top: 40px; display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+}
+.welcome-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; background: var(--white);
+  border: 1px solid var(--border-light); border-radius: 2px;
+  font-size: 12px; color: var(--text-mid); font-weight: 500;
+}
+.welcome-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--human-vert); }
+ 
+/* ===== CLUB SECTION ===== */
+.club-section { display: none; padding: 36px 40px; display: flex; flex-direction: column; gap: 32px; }
+.club-section.hidden { display: none !important; }
+ 
+/* CLUB HEADER HERO */
+.club-hero {
+  background: var(--financial-green);
+  border-radius: 0; padding: 36px 40px;
+  position: relative; overflow: hidden;
+  clip-path: none;
+}
+.club-hero-geo {
+  position: absolute; right: -20px; top: -40px;
+  width: 260px; height: 260px;
+  background: linear-gradient(135deg, var(--human-vert), transparent);
+  clip-path: polygon(30% 0%, 100% 0%, 100% 70%, 70% 100%, 0% 100%);
+  opacity: .2;
+}
+.club-hero-geo2 {
+  position: absolute; right: 160px; bottom: -60px;
+  width: 200px; height: 200px;
+  background: var(--trust-green);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  opacity: .1;
+}
+.club-hero-inner { position: relative; z-index: 1; display: flex; align-items: flex-start; gap: 24px; }
+.club-monogram {
+  width: 64px; height: 64px; background: rgba(249,241,232,.1);
+  border: 1px solid rgba(249,241,232,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: var(--ivory);
+  letter-spacing: -.02em; flex-shrink: 0; border-radius: 1px;
+}
+.club-hero-text h2 {
+  font-size: 28px; font-weight: 700; color: var(--ivory);
+  letter-spacing: -.02em; margin-bottom: 10px;
+}
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.hero-tag {
+  padding: 4px 12px; font-size: 11px; letter-spacing: .08em;
+  border-radius: 1px; font-weight: 500;
+}
+.hero-tag.green { background: rgba(111,160,135,.2); color: var(--trust-green); border: 1px solid rgba(111,160,135,.3); }
+.hero-tag.ivory { background: rgba(249,241,232,.1); color: rgba(249,241,232,.7); border: 1px solid rgba(249,241,232,.15); }
+.hero-link {
+  margin-left: auto; align-self: flex-start; flex-shrink: 0;
+  padding: 10px 20px; background: rgba(249,241,232,.08);
+  border: 1px solid rgba(249,241,232,.2); color: var(--ivory);
+  text-decoration: none; font-size: 12px; font-weight: 500; letter-spacing: .06em;
+  border-radius: 1px; transition: background .2s; display: flex; align-items: center; gap: 6px;
+}
+.hero-link:hover { background: rgba(249,241,232,.15); }
+ 
+/* SCORE PANEL */
+.score-panel {
+  background: var(--white); border: 1px solid var(--border-light);
+  display: grid; grid-template-columns: 220px 1fr;
+  overflow: hidden;
+}
+.score-left {
+  background: var(--financial-green); padding: 36px 28px;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  position: relative; overflow: hidden;
+}
+.score-left::after {
+  content: ''; position: absolute; right: -30px; bottom: -30px;
+  width: 120px; height: 120px;
+  background: rgba(111,160,135,.15);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+.score-ring-wrap { position: relative; width: 140px; height: 140px; }
+.score-ring-wrap svg { width: 100%; height: 100%; }
+.score-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-num-big {
+  font-size: 38px; font-weight: 700; color: var(--ivory); line-height: 1;
+}
+.score-of { font-size: 11px; color: rgba(249,241,232,.5); letter-spacing: .06em; }
+.score-label-txt {
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(249,241,232,.6); font-weight: 500; text-align: center;
+}
+.score-grade-badge {
+  padding: 8px 24px; font-size: 22px; font-weight: 700; letter-spacing: .1em;
+  border-radius: 1px;
+}
+.score-grade-badge.top { background: rgba(154,188,170,.2); color: var(--trust-green); border: 1px solid rgba(154,188,170,.3); }
+.score-grade-badge.mid { background: rgba(249,241,232,.12); color: var(--ivory); border: 1px solid rgba(249,241,232,.2); }
+.score-grade-badge.low { background: rgba(180,80,60,.2); color: #e8a090; border: 1px solid rgba(180,80,60,.3); }
+.score-right { padding: 28px 32px; display: flex; flex-direction: column; gap: 0; }
+.score-right-title {
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 500; margin-bottom: 16px;
+}
+.score-bar-row {
+  display: grid; grid-template-columns: 1fr 120px 52px 48px;
+  align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.score-bar-row:last-child { border-bottom: none; }
+.sbr-label { font-size: 12px; color: var(--text-mid); font-weight: 500; }
+.sbr-bar { height: 4px; background: var(--ivory-dark); border-radius: 0; overflow: hidden; }
+.sbr-fill { height: 100%; border-radius: 0; transition: width .8s cubic-bezier(.4,0,.2,1); }
+.sbr-val { font-size: 12px; font-weight: 700; text-align: right; }
+.sbr-max { font-size: 11px; color: var(--text-muted); text-align: right; }
+ 
+/* SECTION TITLE */
+.sec-title {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 0;
+}
+.sec-title-line {
+  width: 3px; height: 20px; background: var(--financial-green);
+}
+.sec-title h3 {
+  font-size: 13px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--financial-green);
+}
+ 
+/* INPUT SECTION */
+.input-section {
+  background: var(--white); border: 1px solid var(--border-light);
+  padding: 28px 32px;
+}
+.input-group-title {
+  font-size: 10px; letter-spacing: .14em; color: var(--text-muted);
+  text-transform: uppercase; font-weight: 500;
+  grid-column: 1 / -1; padding-top: 12px; padding-bottom: 4px;
+  border-top: 1px solid var(--border-light); margin-top: 4px;
+}
+.input-group-title:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+.input-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px; margin-top: 20px;
+}
+.inp-wrap { display: flex; flex-direction: column; gap: 5px; }
+.inp-wrap label {
+  font-size: 11px; color: var(--text-muted); letter-spacing: .06em; font-weight: 500;
+}
+.inp-wrap input {
+  padding: 9px 12px; border: 1px solid var(--border-light);
+  background: var(--ivory); border-radius: 1px;
+  font-family: "Satoshi"; font-size: 13px; color: var(--text-dark);
+  outline: none; transition: border-color .2s, background .2s;
+}
+.inp-wrap input:focus { border-color: var(--human-vert); background: var(--white); }
+.inp-wrap input.filled { border-color: rgba(22,48,41,.25); background: var(--white); }
+ 
+.calc-btn {
+  margin-top: 24px; padding: 14px 40px;
+  background: var(--financial-green); color: var(--ivory);
+  border: none; cursor: pointer; font-family: "Satoshi";
+  font-size: 13px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; border-radius: 1px;
+  transition: background .2s, transform .1s;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.calc-btn:hover { background: #1d3d33; }
+.calc-btn:active { transform: scale(.99); }
+.calc-btn-arrow { font-size: 16px; }
+ 
+/* PROB SECTION */
+.prob-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border: 1px solid var(--border-light); overflow: hidden;
+}
+.prob-card {
+  padding: 28px 24px; background: var(--white);
+  border-right: 1px solid var(--border-light); position: relative; overflow: hidden;
+}
+.prob-card:last-child { border-right: none; }
+.prob-card-geo {
+  position: absolute; right: -20px; bottom: -20px;
+  width: 80px; height: 80px; opacity: .06;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+.prob-card-label {
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 500; margin-bottom: 16px;
+}
+.prob-val {
+  font-size: 48px; font-weight: 700; line-height: 1; margin-bottom: 12px;
+  letter-spacing: -.02em;
+}
+.prob-val.green { color: var(--financial-green); }
+.prob-val.vert { color: var(--human-vert); }
+.prob-val.warm { color: #b85c40; }
+.prob-bar { height: 3px; background: var(--ivory-dark); margin-bottom: 10px; }
+.prob-fill { height: 100%; transition: width .8s cubic-bezier(.4,0,.2,1); }
+.prob-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+ 
+/* VAR SECTION */
+.var-section {
+  background: var(--financial-green); padding: 32px;
+  position: relative; overflow: hidden;
+}
+.var-geo {
+  position: absolute; right: -40px; top: -40px; width: 300px; height: 300px;
+  background: rgba(111,160,135,.1);
+  clip-path: polygon(30% 0%, 100% 0%, 100% 70%);
+}
+.var-section .sec-title .sec-title-line { background: var(--trust-green); }
+.var-section .sec-title h3 { color: var(--trust-green); }
+.var-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;
+}
+.var-card {
+  background: rgba(249,241,232,.06); border: 1px solid rgba(249,241,232,.1);
+  padding: 20px; position: relative;
+}
+.var-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--human-vert);
+}
+.var-card.yellow::before { background: var(--trust-green); }
+.var-card.light::before { background: rgba(249,241,232,.4); }
+.var-card-label { font-size: 10px; letter-spacing: .1em; color: rgba(249,241,232,.5); text-transform: uppercase; font-weight: 500; margin-bottom: 8px; }
+.var-card-val { font-size: 26px; font-weight: 700; color: var(--ivory); margin-bottom: 6px; letter-spacing: -.01em; }
+.var-card-desc { font-size: 11px; color: rgba(249,241,232,.4); line-height: 1.5; }
+ 
+/* TRANSFER CHART */
+.transfer-section { background: var(--white); border: 1px solid var(--border-light); padding: 28px 32px; }
+.transfer-legend { display: flex; gap: 20px; margin-top: 16px; margin-bottom: 20px; }
+.tleg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.tleg-dot { width: 10px; height: 10px; border-radius: 0; }
+.tleg-dot.in { background: var(--financial-green); }
+.tleg-dot.out { background: var(--human-vert); }
+.transfer-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.tr-label { font-size: 12px; color: var(--text-mid); min-width: 100px; font-weight: 500; }
+.tr-bars { display: flex; align-items: center; gap: 4px; flex: 1; }
+.tr-bar-in { background: var(--financial-green); height: 24px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 10px; color: var(--ivory); font-weight: 700; min-width: 24px; border-radius: 0 1px 1px 0; }
+.tr-bar-out { background: var(--trust-green); height: 24px; display: flex; align-items: center; padding-left: 8px; font-size: 10px; color: var(--financial-green); font-weight: 700; min-width: 24px; border-radius: 1px 0 0 1px; }
+.tr-net { font-size: 12px; font-weight: 700; min-width: 40px; text-align: right; }
+.tr-net.pos { color: var(--financial-green); }
+.tr-net.neg { color: #b85c40; }
+ 
+/* RISK TABLE */
+.table-section { background: var(--white); border: 1px solid var(--border-light); overflow: hidden; }
+.risk-table { width: 100%; border-collapse: collapse; }
+.risk-table th {
+  background: var(--ivory); color: var(--text-muted);
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  font-weight: 600; padding: 12px 16px; text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+.risk-table td { padding: 12px 16px; border-bottom: 1px solid rgba(22,48,41,.06); font-size: 12px; }
+.risk-table tr:hover td { background: rgba(249,241,232,.5); }
+.risk-table tfoot td { background: var(--financial-green); color: var(--ivory); font-weight: 700; font-size: 13px; letter-spacing: .04em; }
+.risk-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.risk-dot.low { background: var(--financial-green); }
+.risk-dot.mid { background: var(--human-vert); }
+.risk-dot.high { background: #b85c40; }
+ 
+/* METRICS */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0; }
+.metric-card {
+  padding: 20px; background: var(--white); border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  position: relative; overflow: hidden;
+}
+.metric-card.good { border-top: 2px solid var(--financial-green); }
+.metric-card.warn { border-top: 2px solid var(--human-vert); }
+.metric-card.bad { border-top: 2px solid #b85c40; }
+.mc-label { font-size: 10px; letter-spacing: .1em; color: var(--text-muted); text-transform: uppercase; font-weight: 500; margin-bottom: 8px; }
+.mc-val { font-size: 28px; font-weight: 700; color: var(--text-dark); letter-spacing: -.02em; line-height: 1; margin-bottom: 4px; }
+.mc-sub { font-size: 11px; color: var(--text-muted); }
+ 
+.hidden { display: none !important; }
+ 
+/* Sections wrapper */
+.sections-wrap { display: flex; flex-direction: column; gap: 24px; }
+.sec-block { display: flex; flex-direction: column; gap: 16px; }
+ 
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { height: auto; position: relative; top: 0; }
+  .score-panel { grid-template-columns: 1fr; }
+  .var-grid, .prob-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="logo-mark">SN</div>
-  <div>
-    <h1>Sports Risk Matrix</h1>
-    <span>Análisis de Riesgo Deportivo Automatizado — Tier 3</span>
+ 
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-m">
+      <svg viewBox="0 0 40 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 30L10 0L20 18L30 0L40 30L33 30L24 11L20 20L16 11L7 30Z" fill="#F9F1E8"/>
+        <path d="M18 20L20 24L22 20L20 18Z" fill="#6fa087"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Mills Capital</span>
+    <span class="nav-claim">Sports Risk Analytics</span>
   </div>
-  <div class="header-right">
-    <div class="tag">⬡ 1.671 CLUBES</div>
+  <div class="nav-right">
+    <span class="nav-tag">1.671 CLUBES · 101 LIGAS</span>
   </div>
-</header>
-
-<div class="main">
+</nav>
+ 
+<div class="app">
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-title">Seleccionar Club</div>
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Buscar club..." oninput="filterClubs()">
+    <div class="sidebar-top">
+      <div class="sidebar-label">Seleccionar Club</div>
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Buscar club..." oninput="filterClubs()">
+      </div>
+      <div class="comp-select">
+        <select id="compFilter" onchange="filterClubs()">
+          <option value="">Todas las competiciones</option>
+        </select>
+      </div>
     </div>
-    <div class="comp-filter">
-      <select id="compFilter" onchange="filterClubs()">
-        <option value="">Todas las competiciones</option>
-      </select>
-    </div>
-    <div class="club-count" id="clubCount">Cargando...</div>
+    <div class="sidebar-count" id="clubCount">Cargando...</div>
     <div class="club-list" id="clubList"></div>
   </aside>
-
+ 
   <!-- CONTENT -->
-  <main class="content" id="mainContent">
+  <main class="content">
+    <!-- WELCOME -->
     <div class="welcome" id="welcomeMsg">
-      <div class="w-icon">⬡</div>
-      <h2>Selecciona un Club</h2>
-      <p>Elige un club de la lista para cargar su perfil de riesgo deportivo y comenzar el análisis.</p>
+      <div class="welcome-bg">
+        <div class="welcome-geo"></div>
+        <div class="welcome-geo2"></div>
+      </div>
+      <svg class="welcome-m" viewBox="0 0 80 60" fill="none">
+        <path d="M0 60L16 0L40 36L64 0L80 60L66 60L48 22L40 40L32 22L14 60Z" fill="#163029"/>
+        <path d="M36 40L40 48L44 40L40 36Z" fill="#6fa087"/>
+      </svg>
+      <h2>Confianza que<br>construye futuro.</h2>
+      <p>Seleccioná un club para analizar su perfil de riesgo deportivo con metodología Mills Capital.</p>
+      <div class="welcome-sub">
+        <div class="welcome-pill"><span class="dot"></span>Score de Riesgo (0–580)</div>
+        <div class="welcome-pill"><span class="dot"></span>VaR No Paramétrico 99%</div>
+        <div class="welcome-pill"><span class="dot"></span>Probabilidades de Posición</div>
+      </div>
     </div>
-
-    <div id="clubContent" class="hidden">
-      <!-- Club header -->
-      <div class="club-header" id="clubHeader"></div>
-
+ 
+    <!-- CLUB CONTENT -->
+    <div id="clubContent" class="club-section hidden">
+      <!-- Hero -->
+      <div class="club-hero" id="clubHero">
+        <div class="club-hero-geo"></div>
+        <div class="club-hero-geo2"></div>
+      </div>
+ 
       <!-- Score -->
-      <div>
-        <div class="section-title">SCORE DE RIESGO DEPORTIVO</div>
-        <div class="score-section" style="margin-top:16px;">
-          <div class="score-dial">
-            <div class="score-ring">
+      <div class="sec-block" id="scoreBlock">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Score de Riesgo Deportivo</h3></div>
+        <div class="score-panel" id="scorePanel">
+          <div class="score-left">
+            <div class="score-ring-wrap">
               <svg viewBox="0 0 140 140">
-                <circle cx="70" cy="70" r="56" fill="none" stroke="#232830" stroke-width="10"/>
-                <circle id="scoreArc" cx="70" cy="70" r="56" fill="none" stroke="#00e5a0" stroke-width="10"
-                  stroke-dasharray="351.86" stroke-dashoffset="351.86"
-                  stroke-linecap="round" transform="rotate(-90 70 70)"
-                  style="transition: stroke-dashoffset 1s ease, stroke .5s;"/>
+                <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(249,241,232,.1)" stroke-width="8"/>
+                <circle id="scoreArc" cx="70" cy="70" r="54" fill="none" stroke="#6fa087" stroke-width="8"
+                  stroke-dasharray="339.29" stroke-dashoffset="339.29"
+                  stroke-linecap="butt" transform="rotate(-90 70 70)"
+                  style="transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1), stroke .4s;"/>
               </svg>
-              <div class="score-num">
-                <span class="sn-val" id="scoreNum">—</span>
-                <span class="sn-max">/ 580</span>
+              <div class="score-center">
+                <span class="score-num-big" id="scoreNum">—</span>
+                <span class="score-of">/ 580</span>
               </div>
             </div>
-            <div class="score-label" id="scoreLabel">EN ESPERA</div>
-            <div class="score-grade" id="scoreGrade">—</div>
+            <div class="score-label-txt" id="scoreLabel">INGRESE DATOS</div>
+            <div class="score-grade-badge mid" id="scoreGrade">—</div>
           </div>
-          <div class="score-details" id="scoreDetails"></div>
+          <div class="score-right">
+            <div class="score-right-title">Composición del Score</div>
+            <div id="scoreDetails"></div>
+          </div>
         </div>
       </div>
-
-      <!-- Input Form -->
-      <div class="input-panel">
-        <div class="section-title">INPUTS DE DATOS</div>
-        <div class="input-grid" id="inputGrid"></div>
-        <button class="calc-btn" onclick="calcularRiesgo()">⬡ CALCULAR RIESGO</button>
+ 
+      <!-- Inputs -->
+      <div class="sec-block">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Datos de Análisis</h3></div>
+        <div class="input-section">
+          <div class="input-grid" id="inputGrid"></div>
+          <button class="calc-btn" onclick="calcularRiesgo()">
+            Calcular Riesgo Deportivo <span class="calc-btn-arrow">→</span>
+          </button>
+        </div>
       </div>
-
+ 
       <!-- Probabilidades -->
-      <div id="probSection" class="hidden">
-        <div class="section-title">PROBABILIDADES DE POSICIÓN FINAL</div>
+      <div class="sec-block hidden" id="probBlock">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Probabilidades de Posición Final</h3></div>
         <div class="prob-grid" id="probGrid"></div>
       </div>
-
+ 
       <!-- VaR -->
-      <div class="var-panel" id="varSection" style="display:none;">
-        <div class="section-title" style="color:var(--accent2);">VALUE AT RISK — 99% CONFIANZA</div>
-        <div class="var-grid" id="varGrid"></div>
+      <div class="sec-block hidden" id="varBlock">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Value at Risk — Análisis No Paramétrico</h3></div>
+        <div class="var-section">
+          <div class="var-geo"></div>
+          <div class="var-grid" id="varGrid"></div>
+        </div>
       </div>
-
+ 
       <!-- Transferencias -->
-      <div id="transferSection" class="hidden">
-        <div class="section-title">ANÁLISIS DE TRANSFERENCIAS (5 TEMPORADAS)</div>
-        <div class="transfer-chart" id="transferChart"></div>
+      <div class="sec-block hidden" id="transferBlock">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Análisis de Transferencias (5 Temporadas)</h3></div>
+        <div class="transfer-section">
+          <div class="transfer-legend">
+            <div class="tleg"><div class="tleg-dot in"></div>Altas</div>
+            <div class="tleg"><div class="tleg-dot out"></div>Bajas</div>
+          </div>
+          <div id="transferChart"></div>
+        </div>
       </div>
-
-      <!-- Matriz detallada -->
-      <div id="matrizSection" class="hidden">
-        <div class="section-title">MATRIZ DE RIESGO DETALLADA</div>
-        <table class="risk-table" id="riskTable">
-          <thead>
-            <tr>
-              <th>Variable</th>
-              <th>Valor</th>
-              <th>Benchmark Liga</th>
-              <th>Ratio</th>
-              <th>Riesgo</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody id="riskTableBody"></tbody>
-        </table>
+ 
+      <!-- Matriz -->
+      <div class="sec-block hidden" id="matrizBlock">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Matriz de Riesgo Detallada</h3></div>
+        <div class="table-section">
+          <table class="risk-table">
+            <thead>
+              <tr>
+                <th>Variable</th><th>Valor Club</th><th>Benchmark</th><th>Ratio</th><th>Nivel</th><th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="riskTableBody"></tbody>
+            <tfoot id="riskTableFoot"></tfoot>
+          </table>
+        </div>
       </div>
-
-      <!-- Key Metrics -->
-      <div id="metricsSection" class="hidden">
-        <div class="section-title">MÉTRICAS CLAVE</div>
+ 
+      <!-- Metrics -->
+      <div class="sec-block hidden" id="metricsBlock">
+        <div class="sec-title"><div class="sec-title-line"></div><h3>Métricas Clave</h3></div>
         <div class="metrics-grid" id="metricsGrid"></div>
       </div>
     </div>
   </main>
 </div>
-
+ 
 <script>
-// ===================== DATA =====================
 const CLUBS_DATA = {"Bundesliga":{"pais":"Alemania","equipos_total":30,"clubes":[{"nombre":"Bayern Múnich","codigo":27},{"nombre":"Borussia Dortmund","codigo":16},{"nombre":"RB Leipzig","codigo":23826},{"nombre":"Bayer 04 Leverkusen","codigo":15},{"nombre":"Eintracht Fráncfort","codigo":24},{"nombre":"VfB Stuttgart","codigo":79},{"nombre":"TSG 1899 Hoffenheim","codigo":533},{"nombre":"VfL Wolfsburgo","codigo":82},{"nombre":"SC Friburgo","codigo":60},{"nombre":"SV Werder Bremen","codigo":86},{"nombre":"Hamburgo SV","codigo":41},{"nombre":"FC Augsburgo","codigo":167},{"nombre":"Borussia Mönchengladbach","codigo":18},{"nombre":"1.FSV Mainz 05","codigo":39},{"nombre":"FC Colonia","codigo":3},{"nombre":"1.FC Unión Berlín","codigo":89},{"nombre":"FC St. Pauli","codigo":35},{"nombre":"1.FC Heidenheim 1846","codigo":2036},{"nombre":"Red Bull Salzburgo","codigo":409},{"nombre":"SK Rapid Viena","codigo":170},{"nombre":"SK Sturm Graz","codigo":122},{"nombre":"LASK","codigo":413},{"nombre":"FK Austria Viena","codigo":14},{"nombre":"Wolfsberger AC","codigo":4441},{"nombre":"TSV Hartberg","codigo":4467},{"nombre":"FC Blau-Weiss Linz","codigo":2157},{"nombre":"WSG Tirol","codigo":2446},{"nombre":"SCR Altach","codigo":3551},{"nombre":"Grazer AK 1902","codigo":316},{"nombre":"SV Ried","codigo":266}]},"2. Bundesliga":{"pais":"Alemania","equipos_total":18,"clubes":[{"nombre":"Hertha Berlín","codigo":44},{"nombre":"Hannover 96","codigo":42},{"nombre":"FC Schalke 04","codigo":33},{"nombre":"VfL Bochum","codigo":80},{"nombre":"SC Paderborn 07","codigo":127},{"nombre":"Holstein Kiel","codigo":269},{"nombre":"1.FC Kaiserslautern","codigo":2},{"nombre":"Fortuna Düsseldorf","codigo":38},{"nombre":"1. FC Núremberg","codigo":4},{"nombre":"SV Darmstadt 98","codigo":105},{"nombre":"Karlsruher SC","codigo":48},{"nombre":"SV 07 Elversberg","codigo":64},{"nombre":"SpVgg Greuther Fürth","codigo":65},{"nombre":"1.FC Magdeburg","codigo":187},{"nombre":"Eintracht Braunschweig","codigo":23},{"nombre":"Preußen Münster","codigo":91},{"nombre":"SG Dynamo Dresden","codigo":129},{"nombre":"Arminia Bielefeld","codigo":10}]},"Premier League":{"pais":"Inglaterra","equipos_total":30,"clubes":[{"nombre":"Manchester City","codigo":281},{"nombre":"Arsenal FC","codigo":11},{"nombre":"Chelsea FC","codigo":631},{"nombre":"Liverpool FC","codigo":31},{"nombre":"Tottenham Hotspur","codigo":148},{"nombre":"Manchester United","codigo":985},{"nombre":"Newcastle United","codigo":762},{"nombre":"Nottingham Forest","codigo":703},{"nombre":"Aston Villa","codigo":405},{"nombre":"Crystal Palace","codigo":873},{"nombre":"AFC Bournemouth","codigo":989},{"nombre":"Brighton & Hove Albion","codigo":1237},{"nombre":"Brentford FC","codigo":1148},{"nombre":"Everton FC","codigo":29},{"nombre":"Fulham FC","codigo":931},{"nombre":"Sunderland AFC","codigo":289},{"nombre":"West Ham United","codigo":379},{"nombre":"Leeds United","codigo":399},{"nombre":"Wolverhampton Wanderers","codigo":543},{"nombre":"Burnley FC","codigo":1132},{"nombre":"FC Noah Yerevan","codigo":60368},{"nombre":"FC Ararat-Armenia","codigo":53453},{"nombre":"FC Pyunik Yerevan","codigo":10301},{"nombre":"FC Urartu Yerevan","codigo":11411},{"nombre":"Alashkert Yerevan CF","codigo":37914},{"nombre":"Shirak Gyumri C.F.","codigo":4807},{"nombre":"Gandzasar Kapan","codigo":23911},{"nombre":"FC Ararat Yerevan","codigo":11912},{"nombre":"BKMA Yerevan","codigo":46507},{"nombre":"FC Van","codigo":74661}]},"Championship":{"pais":"Inglaterra","equipos_total":24,"clubes":[{"nombre":"Ipswich Town","codigo":677},{"nombre":"Coventry City","codigo":990},{"nombre":"Southampton FC","codigo":180},{"nombre":"Leicester City","codigo":1003},{"nombre":"Sheffield United","codigo":350},{"nombre":"Middlesbrough FC","codigo":641},{"nombre":"Birmingham City","codigo":337},{"nombre":"Norwich City","codigo":1123},{"nombre":"Stoke City","codigo":512},{"nombre":"Swansea City","codigo":2288},{"nombre":"Millwall FC","codigo":1028},{"nombre":"Hull City","codigo":3008},{"nombre":"Watford FC","codigo":1010},{"nombre":"Bristol City","codigo":698},{"nombre":"Wrexham AFC","codigo":1112},{"nombre":"Derby County","codigo":22},{"nombre":"West Bromwich Albion","codigo":984},{"nombre":"Preston North End","codigo":466},{"nombre":"Queens Park Rangers","codigo":1039},{"nombre":"Blackburn Rovers","codigo":164},{"nombre":"Oxford United","codigo":988},{"nombre":"Portsmouth FC","codigo":1020},{"nombre":"Charlton Athletic","codigo":358},{"nombre":"Sheffield Wednesday","codigo":1035}]},"League One":{"pais":"Inglaterra","equipos_total":24,"clubes":[{"nombre":"Cardiff City","codigo":603},{"nombre":"Luton Town","codigo":1031},{"nombre":"Bolton Wanderers","codigo":355},{"nombre":"Huddersfield Town","codigo":1110},{"nombre":"Blackpool FC","codigo":1181},{"nombre":"FC Reading","codigo":1032},{"nombre":"Leyton Orient","codigo":1150},{"nombre":"Stockport County","codigo":1098},{"nombre":"Plymouth Argyle","codigo":2262},{"nombre":"Wycombe Wanderers","codigo":2805},{"nombre":"Rotherham United","codigo":1194},{"nombre":"Wigan Athletic","codigo":1071},{"nombre":"Port Vale FC","codigo":1211},{"nombre":"Bradford City","codigo":1027},{"nombre":"FC Stevenage","codigo":3684},{"nombre":"Mansfield Town","codigo":3820},{"nombre":"Barnsley FC","codigo":349},{"nombre":"Burton Albion","codigo":2963},{"nombre":"Lincoln City","codigo":1198},{"nombre":"Peterborough United","codigo":1072},{"nombre":"Exeter City","codigo":6699},{"nombre":"Doncaster Rovers","codigo":2454},{"nombre":"Northampton Town","codigo":1302},{"nombre":"AFC Wimbledon","codigo":3884}]},"League Two":{"pais":"Inglaterra","equipos_total":24,"clubes":[{"nombre":"Milton Keynes Dons","codigo":991},{"nombre":"Bristol Rovers","codigo":2455},{"nombre":"Crawley Town","codigo":3537},{"nombre":"Salford City","codigo":34888},{"nombre":"Notts County","codigo":1045},{"nombre":"FC Chesterfield","codigo":1219},{"nombre":"Crewe Alexandra","codigo":1042},{"nombre":"FC Walsall","codigo":899},{"nombre":"Cambridge United","codigo":986},{"nombre":"Grimsby Town","codigo":1034},{"nombre":"Colchester United","codigo":1060},{"nombre":"Gillingham FC","codigo":2814},{"nombre":"Swindon Town","codigo":352},{"nombre":"Fleetwood Town","codigo":11177},{"nombre":"Shrewsbury Town","codigo":3054},{"nombre":"Tranmere Rovers","codigo":1074},{"nombre":"AFC Barrow","codigo":6168},{"nombre":"Bromley FC","codigo":8981},{"nombre":"FC Barnet","codigo":2804},{"nombre":"Newport County","codigo":3716},{"nombre":"Harrogate Town","codigo":12020},{"nombre":"Cheltenham Town","codigo":3371},{"nombre":"Oldham Athletic","codigo":1078},{"nombre":"Accrington Stanley","codigo":3688}]},"LaLiga":{"pais":"España","equipos_total":20,"clubes":[{"nombre":"Villarreal","codigo":1050},{"nombre":"Real Sociedad","codigo":681},{"nombre":"Elche CF","codigo":1531},{"nombre":"RCD Mallorca","codigo":237},{"nombre":"RCD Espanyol","codigo":714},{"nombre":"Getafe CF","codigo":3709},{"nombre":"CA Osasuna","codigo":331},{"nombre":"Girona FC","codigo":12321},{"nombre":"Levante UD","codigo":3368},{"nombre":"Real Oviedo","codigo":2497},{"nombre":"Sevilla FC","codigo":368},{"nombre":"Valencia CF","codigo":1049},{"nombre":"FC Barcelona","codigo":131},{"nombre":"Rayo Vallecano","codigo":367},{"nombre":"RC Celta de Vigo","codigo":940},{"nombre":"Deportivo Alavés","codigo":1108},{"nombre":"Athletic Club","codigo":621},{"nombre":"Real Betis Balompié","codigo":150},{"nombre":"Real Madrid CF","codigo":418},{"nombre":"Atlético de Madrid","codigo":13}]},"Segunda División":{"pais":"España","equipos_total":22,"clubes":[{"nombre":"RC Deportivo de La Coruña","codigo":897},{"nombre":"Real Racing Club","codigo":630},{"nombre":"UD Almería","codigo":3302},{"nombre":"UD Las Palmas","codigo":472},{"nombre":"Real Valladolid CF","codigo":366},{"nombre":"Real Sporting de Gijón","codigo":2448},{"nombre":"Cádiz CF","codigo":2687},{"nombre":"CD Leganés","codigo":1244},{"nombre":"Granada CF","codigo":16795},{"nombre":"Real Zaragoza","codigo":142},{"nombre":"Burgos CF","codigo":1536},{"nombre":"Málaga CF","codigo":1084},{"nombre":"FC Andorra","codigo":10718},{"nombre":"CD Castellón","codigo":2502},{"nombre":"SD Eibar","codigo":1533},{"nombre":"CD Mirandés","codigo":13222},{"nombre":"Córdoba CF","codigo":993},{"nombre":"SD Huesca","codigo":5358},{"nombre":"Albacete Balompié","codigo":1532},{"nombre":"Cultural Leonesa","codigo":4542},{"nombre":"AD Ceuta FC","codigo":8568},{"nombre":"Real Sociedad B","codigo":9899}]},"Serie A":{"pais":"Italia","equipos_total":20,"clubes":[{"nombre":"Inter de Milán","codigo":46},{"nombre":"Juventus de Turín","codigo":506},{"nombre":"AC Milan","codigo":5},{"nombre":"AS Roma","codigo":12},{"nombre":"SSC Nápoles","codigo":6195},{"nombre":"Atalanta de Bérgamo","codigo":800},{"nombre":"Como 1907","codigo":1047},{"nombre":"Bolonia","codigo":1025},{"nombre":"Fiorentina","codigo":430},{"nombre":"SS Lazio","codigo":398},{"nombre":"US Sassuolo","codigo":6574},{"nombre":"Parma","codigo":130},{"nombre":"Udinese","codigo":410},{"nombre":"Génova","codigo":252},{"nombre":"Cagliari","codigo":1390},{"nombre":"Torino FC","codigo":416},{"nombre":"Pisa Sporting Club","codigo":4172},{"nombre":"Hellas Verona","codigo":276},{"nombre":"US Lecce","codigo":1005},{"nombre":"US Cremonese","codigo":2239}]},"Serie B":{"pais":"Italia","equipos_total":20,"clubes":[{"nombre":"Venezia FC","codigo":607},{"nombre":"AC Monza","codigo":2919},{"nombre":"Empoli FC","codigo":749},{"nombre":"Palermo FC","codigo":458},{"nombre":"UC Sampdoria","codigo":1038},{"nombre":"US Catanzaro","codigo":4097},{"nombre":"Spezia","codigo":3522},{"nombre":"Cesena FC","codigo":1429},{"nombre":"Modena FC","codigo":1385},{"nombre":"Frosinone Calcio","codigo":8970},{"nombre":"SSC Bari","codigo":332},{"nombre":"SS Juve Stabia","codigo":5587},{"nombre":"AC Reggiana 1919","codigo":5621},{"nombre":"Mantova 1911","codigo":2581},{"nombre":"Carrarese Calcio 1908","codigo":4159},{"nombre":"Delfino Pescara 1936","codigo":2921},{"nombre":"FC Südtirol","codigo":4554},{"nombre":"US Avellino 1912","codigo":2331},{"nombre":"Calcio Padova","codigo":3037},{"nombre":"Virtus Entella","codigo":20519}]},"Ligue 1":{"pais":"Francia","equipos_total":18,"clubes":[{"nombre":"París Saint-Germain FC","codigo":583},{"nombre":"Olympique de Marsella","codigo":244},{"nombre":"AS Mónaco","codigo":162},{"nombre":"Racing Club de Estrasburgo","codigo":667},{"nombre":"LOSC Lille","codigo":1082},{"nombre":"Olympique de Lyon","codigo":1041},{"nombre":"Stade Rennais FC","codigo":273},{"nombre":"OGC Niza","codigo":417},{"nombre":"RC Lens","codigo":826},{"nombre":"Paris FC","codigo":10004},{"nombre":"Toulouse FC","codigo":415},{"nombre":"FC Nantes","codigo":995},{"nombre":"Stade Brestois 29","codigo":3911},{"nombre":"FC Lorient","codigo":1158},{"nombre":"AJ Auxerre","codigo":290},{"nombre":"Angers SCO","codigo":1420},{"nombre":"Le Havre AC","codigo":738},{"nombre":"FC Metz","codigo":347}]},"Ligue 2":{"pais":"Francia","equipos_total":18,"clubes":[{"nombre":"AS Saint-Étienne","codigo":618},{"nombre":"Stade de Reims","codigo":1421},{"nombre":"ESTAC Troyes","codigo":1095},{"nombre":"Montpellier HSC","codigo":969},{"nombre":"Amiens SC","codigo":1416},{"nombre":"USL Dunkerque","codigo":9202},{"nombre":"EA Guingamp","codigo":855},{"nombre":"Pau FC","codigo":3166},{"nombre":"Red Star FC","codigo":1154},{"nombre":"SC Bastia","codigo":595},{"nombre":"Grenoble Foot 38","codigo":1290},{"nombre":"AS Nancy-Lorraine","codigo":1159},{"nombre":"Clermont Foot 63","codigo":3524},{"nombre":"Rodez AF","codigo":11273},{"nombre":"Stade Lavallois","codigo":1080},{"nombre":"Le Mans FC","codigo":1164},{"nombre":"FC Annecy","codigo":30204},{"nombre":"US Boulogne","codigo":7042}]},"Championnat National":{"pais":"Francia","equipos_total":17,"clubes":[{"nombre":"FC Sochaux-Montbéliard","codigo":750},{"nombre":"Valenciennes FC","codigo":1423},{"nombre":"FC Rouen 1899","codigo":1564},{"nombre":"SM Caen","codigo":1162},{"nombre":"US Orléans","codigo":10868},{"nombre":"FC Versailles 78","codigo":13466},{"nombre":"Dijon FCO","codigo":2969},{"nombre":"FC Villefranche-Beaujolais","codigo":18633},{"nombre":"Quevilly - Rouen Métropole","codigo":7124},{"nombre":"LB Châteauroux","codigo":1175},{"nombre":"Football Bourg-en-Bresse Péronnas 01","codigo":2972},{"nombre":"US Concarneau","codigo":21688},{"nombre":"SC Aubagne Air Bel","codigo":42609},{"nombre":"Paris 13 Atletico","codigo":62382},{"nombre":"Le Puy Foot 43 Auvergne","codigo":26863},{"nombre":"Football Club Fleury 91","codigo":17442},{"nombre":"Stade Briochin","codigo":1777}]},"Liga Portugal":{"pais":"Portugal","equipos_total":18,"clubes":[{"nombre":"Sporting de Lisboa","codigo":336},{"nombre":"FC Oporto","codigo":720},{"nombre":"SL Benfica","codigo":294},{"nombre":"SC Braga","codigo":1075},{"nombre":"FC Famalicão","codigo":3329},{"nombre":"GD Estoril Praia","codigo":1465},{"nombre":"Gil Vicente FC","codigo":2424},{"nombre":"Vitória Guimarães SC","codigo":2420},{"nombre":"Rio Ave FC","codigo":2425},{"nombre":"FC Alverca","codigo":2521},{"nombre":"CD Santa Clara","codigo":2423},{"nombre":"Moreirense FC","codigo":979},{"nombre":"FC Arouca","codigo":8024},{"nombre":"Casa Pia AC","codigo":3268},{"nombre":"CD Tondela","codigo":7179},{"nombre":"CD Nacional","codigo":982},{"nombre":"CF Estrela Amadora","codigo":2431},{"nombre":"Avs Futebol","codigo":110302}]},"Eredivisie":{"pais":"Países Bajos","equipos_total":18,"clubes":[{"nombre":"PSV Eindhoven","codigo":383},{"nombre":"Feyenoord","codigo":234},{"nombre":"Ajax de Ámsterdam","codigo":610},{"nombre":"AZ Alkmaar","codigo":1090},{"nombre":"FC Utrecht","codigo":200},{"nombre":"FC Twente Enschede","codigo":317},{"nombre":"NEC Nijmegen","codigo":467},{"nombre":"SC Heerenveen","codigo":306},{"nombre":"FC Groningen","codigo":202},{"nombre":"Go Ahead Eagles Deventer","codigo":1435},{"nombre":"Sparta Rotterdam","codigo":468},{"nombre":"PEC Zwolle","codigo":1269},{"nombre":"Fortuna Sittard","codigo":385},{"nombre":"FC Volendam","codigo":724},{"nombre":"Excelsior Rotterdam","codigo":798},{"nombre":"NAC Breda","codigo":132},{"nombre":"Heracles Almelo","codigo":1304},{"nombre":"SC Telstar","codigo":1434}]},"Jupiler Pro League":{"pais":"Bélgica","equipos_total":16,"clubes":[{"nombre":"Club Brujas KV","codigo":2282},{"nombre":"KRC Genk","codigo":1184},{"nombre":"RSC Anderlecht","codigo":58},{"nombre":"Union Saint-Gilloise","codigo":3948},{"nombre":"KAA Gante","codigo":157},{"nombre":"Royal Amberes FC","codigo":1096},{"nombre":"KVC Westerlo","codigo":968},{"nombre":"Standard de Lieja","codigo":3057},{"nombre":"Círculo de Brujas","codigo":520},{"nombre":"KV Mechelen","codigo":354},{"nombre":"R Charleroi SC","codigo":172},{"nombre":"Oud-Heverlee Leuven","codigo":2727},{"nombre":"Sint-Truidense VV","codigo":475},{"nombre":"FCV Dender EH","codigo":9010},{"nombre":"Zulte Waregem","codigo":3508},{"nombre":"RAAL La Louvière","codigo":3901}]},"Süper Lig":{"pais":"Turquía","equipos_total":18,"clubes":[{"nombre":"Galatasaray","codigo":141},{"nombre":"Fenerbahce","codigo":36},{"nombre":"Besiktas JK","codigo":114},{"nombre":"Trabzonspor","codigo":449},{"nombre":"Basaksehir FK","codigo":6890},{"nombre":"Samsunspor","codigo":152},{"nombre":"Caykur Rizespor","codigo":126},{"nombre":"Göztepe","codigo":1467},{"nombre":"Antalyaspor","codigo":589},{"nombre":"Gaziantep FK","codigo":2832},{"nombre":"Eyüpspor","codigo":7160},{"nombre":"Kocaelispor","codigo":120},{"nombre":"Alanyaspor","codigo":11282},{"nombre":"Konyaspor","codigo":2293},{"nombre":"Genclerbirligi Ankara","codigo":820},{"nombre":"Kayserispor","codigo":3205},{"nombre":"Fatih Karagümrük","codigo":6646},{"nombre":"Kasimpasa","codigo":10484}]},"Super League 1":{"pais":"Grecia","equipos_total":14,"clubes":[{"nombre":"Olympiacos El Pireo","codigo":683},{"nombre":"PAOK de Salónica FC","codigo":1091},{"nombre":"Panathinaikos","codigo":265},{"nombre":"AEK Atenas FC","codigo":2441},{"nombre":"Aris de Salónica","codigo":605},{"nombre":"OFI Creta","codigo":653},{"nombre":"Panetolikos","codigo":6418},{"nombre":"Levadiakos","codigo":2672},{"nombre":"AE Kifisia","codigo":30120},{"nombre":"Atromitos FC","codigo":3060},{"nombre":"Asteras Aktor","codigo":6676},{"nombre":"AE Larisa","codigo":4603},{"nombre":"Panserraikos","codigo":3385},{"nombre":"Volos NFC","codigo":60949}]},"Scottish Premiership":{"pais":"Escocia","equipos_total":12,"clubes":[{"nombre":"Celtic FC","codigo":371},{"nombre":"Rangers FC","codigo":124},{"nombre":"Heart of Midlothian FC","codigo":43},{"nombre":"Hibernian FC","codigo":903},{"nombre":"Aberdeen FC","codigo":370},{"nombre":"Kilmarnock FC","codigo":2553},{"nombre":"Dundee United FC","codigo":1519},{"nombre":"St. Mirren FC","codigo":465},{"nombre":"Motherwell FC","codigo":987},{"nombre":"Dundee FC","codigo":511},{"nombre":"Livingston FC","codigo":1241},{"nombre":"Falkirk FC","codigo":1191}]},"Super League":{"pais":"Suiza","equipos_total":12,"clubes":[{"nombre":"BSC Young Boys","codigo":452},{"nombre":"FC Basilea","codigo":26},{"nombre":"FC Lugano","codigo":2790},{"nombre":"FC St. Gallen 1879","codigo":257},{"nombre":"FC Lausanne-Sport","codigo":527},{"nombre":"FC Lucerna","codigo":434},{"nombre":"FC Zúrich","codigo":260},{"nombre":"FC Thun","codigo":938},{"nombre":"Grasshopper Club Zurich","codigo":504},{"nombre":"Servette FC","codigo":61},{"nombre":"FC Sion","codigo":321},{"nombre":"FC Winterthur","codigo":242}]},"Allsvenskan":{"pais":"Suecia","equipos_total":16,"clubes":[{"nombre":"Malmoe FF","codigo":496},{"nombre":"Hammarby IF","codigo":1059},{"nombre":"AIK","codigo":272},{"nombre":"Djurgårdens IF","codigo":1044},{"nombre":"IFK Göteborg","codigo":801},{"nombre":"Mjällby AIF","codigo":2719},{"nombre":"IF Elfsborg","codigo":1101},{"nombre":"IK Sirius","codigo":7945},{"nombre":"BK Häcken","codigo":1109},{"nombre":"GAIS","codigo":7009},{"nombre":"IF Brommapojkarna","codigo":1092},{"nombre":"Degerfors IF","codigo":3641},{"nombre":"Västerås SK","codigo":5202},{"nombre":"Halmstads BK","codigo":1011},{"nombre":"Kalmar FF","codigo":3654},{"nombre":"Örgryte IS","codigo":1118}]},"Superliga":{"pais":"Dinamarca","equipos_total":12,"clubes":[{"nombre":"FC Midtjylland","codigo":865},{"nombre":"FC Copenhague","codigo":190},{"nombre":"Brøndby IF","codigo":206},{"nombre":"FC Nordsjælland","codigo":2778},{"nombre":"Aarhus GF","codigo":678},{"nombre":"Viborg FF","codigo":1063},{"nombre":"Silkeborg IF","codigo":1177},{"nombre":"Odense Boldklub","codigo":173},{"nombre":"Randers FC","codigo":5724},{"nombre":"Vejle Boldklub","codigo":443},{"nombre":"Sönderjyske Fodbold","codigo":5817},{"nombre":"FC Fredericia","codigo":5776}]},"Eliteserien":{"pais":"Noruega","equipos_total":16,"clubes":[{"nombre":"FK Bodø/Glimt","codigo":501},{"nombre":"Viking FK","codigo":239},{"nombre":"Rosenborg BK","codigo":195},{"nombre":"Tromsø IL","codigo":1293},{"nombre":"Molde FK","codigo":687},{"nombre":"SK Brann","codigo":1100},{"nombre":"Sarpsborg 08 FF","codigo":10217},{"nombre":"Vålerenga Fotball Elite","codigo":76},{"nombre":"Fredrikstad FK","codigo":3837},{"nombre":"Sandefjord Fotball","codigo":6399},{"nombre":"Lillestrøm SK","codigo":353},{"nombre":"Kristiansund BK","codigo":21101},{"nombre":"KFUM-Kameratene Oslo","codigo":23184},{"nombre":"Aalesunds FK","codigo":5619},{"nombre":"Hamarkameratene","codigo":4309},{"nombre":"IK Start","codigo":267}]},"Chance Liga":{"pais":"República Checa","equipos_total":16,"clubes":[{"nombre":"SK Slavia Praga","codigo":62},{"nombre":"AC Sparta Praga","codigo":197},{"nombre":"FC Viktoria Plzen","codigo":941},{"nombre":"SK Sigma Olomouc","codigo":2311},{"nombre":"FC Banik Ostrava","codigo":377},{"nombre":"FC Slovan Liberec","codigo":697},{"nombre":"FK Pardubice","codigo":1496},{"nombre":"MFK Karvina","codigo":13726},{"nombre":"FK Jablonec","codigo":1322},{"nombre":"FK Teplice","codigo":814},{"nombre":"FK Mlada Boleslav","codigo":5546},{"nombre":"FK Dukla Praga","codigo":450},{"nombre":"FC Hradec Kralove","codigo":1897},{"nombre":"Bohemians Praga 1905","codigo":715},{"nombre":"FC Zlin","codigo":5545},{"nombre":"1.FC Slovacko","codigo":5544}]},"SuperSport HNL":{"pais":"Croacia","equipos_total":10,"clubes":[{"nombre":"GNK Dinamo Zagreb","codigo":419},{"nombre":"HNK Hajduk Split","codigo":447},{"nombre":"HNK Rijeka","codigo":144},{"nombre":"NK Osijek","codigo":327},{"nombre":"NK Istra 1961","codigo":999},{"nombre":"NK Lokomotiva Zagreb","codigo":11194},{"nombre":"NK Varazdin","codigo":599},{"nombre":"HNK Gorica","codigo":24575},{"nombre":"Slaven Belupo Koprivnica","codigo":2362},{"nombre":"HNK Vukovar 1991","codigo":456}]},"Super liga Srbije":{"pais":"Serbia","equipos_total":16,"clubes":[{"nombre":"Estrella Roja de Belgrado","codigo":159},{"nombre":"Partizán de Belgrado","codigo":669},{"nombre":"FK Vojvodina Novi Sad","codigo":448},{"nombre":"OFK Beograd","codigo":53},{"nombre":"FK IMT Belgrad","codigo":32113},{"nombre":"FK TSC Backa Topola","codigo":3137},{"nombre":"FK Cukaricki","codigo":6621},{"nombre":"FK Zeleznicar Pancevo","codigo":59358},{"nombre":"FK Napredak Krusevac","codigo":788},{"nombre":"FK Novi Pazar","codigo":4633},{"nombre":"FK Javor-Matis Ivanjica","codigo":8819},{"nombre":"FK Spartak Subotica","codigo":15276},{"nombre":"FK Radnik Surdulica","codigo":33328},{"nombre":"FK Radnicki Niš","codigo":7567},{"nombre":"FK Radnicki 1923 Kragujevac","codigo":4645},{"nombre":"FK Mladost Lucani","codigo":6622}]},"SuperLiga":{"pais":"Rumania","equipos_total":16,"clubes":[{"nombre":"ACSC FC Arges","codigo":41278},{"nombre":"AFC Unirea 04 Slobozia","codigo":29700},{"nombre":"CFR Cluj","codigo":7769},{"nombre":"FC Botoșani","codigo":8818},{"nombre":"FC Dinamo 1948","codigo":312},{"nombre":"FC Hermannstadt","codigo":58049},{"nombre":"FC Metaloglobus Bucharest","codigo":37624},{"nombre":"FC Rapid 1923","codigo":455},{"nombre":"FC Universitatea Cluj","codigo":6429},{"nombre":"FCSB","codigo":301},{"nombre":"FCV Farul Constanta","codigo":29831},{"nombre":"FK Csikszereda Miercurea Ciuc","codigo":37255},{"nombre":"Petrolul Ploiesti","codigo":9465},{"nombre":"SC Otelul Galati","codigo":4959},{"nombre":"UTA Arad","codigo":952},{"nombre":"Universitatea Craiova","codigo":40812}]},"Premier de Ucrania":{"pais":"Ucrania","equipos_total":16,"clubes":[{"nombre":"Shakhtar Donetsk","codigo":660},{"nombre":"FC Dinamo de Kiev","codigo":338},{"nombre":"Polissya Zhytomyr","codigo":53646},{"nombre":"Metalist 1925 Kharkiv","codigo":55686},{"nombre":"LNZ Cherkasy","codigo":63007},{"nombre":"Karpaty Lviv","codigo":85465},{"nombre":"Kryvbas Kryvyi Rig","codigo":3592},{"nombre":"Kolos Kovalivka","codigo":48332},{"nombre":"Zorya Lugansk","codigo":10690},{"nombre":"FK Oleksandriya","codigo":18303},{"nombre":"NK Veres Rivne","codigo":26459},{"nombre":"Rukh Lviv","codigo":48726},{"nombre":"Obolon Kyiv","codigo":39097},{"nombre":"Epicentr Kamyanets-Podilskyi","codigo":84122},{"nombre":"FC Kudrivka","codigo":87883},{"nombre":"SK Poltava","codigo":81401}]},"Ekstraklasa":{"pais":"Polonia","equipos_total":18,"clubes":[{"nombre":"Lech Poznan","codigo":238},{"nombre":"Raków Częstochowa","codigo":9644},{"nombre":"RTS Widzew Łódź","codigo":88},{"nombre":"Jagiellonia Białystok","codigo":2300},{"nombre":"Legia de Varsovia","codigo":255},{"nombre":"Cracovia","codigo":5689},{"nombre":"Górnik Zabrze","codigo":428},{"nombre":"Pogon Szczecin","codigo":324},{"nombre":"KS Lechia Gdańsk","codigo":4000},{"nombre":"Zagłębie Lubin","codigo":168},{"nombre":"Korona Kielce","codigo":6110},{"nombre":"Wisła Płock","codigo":2118},{"nombre":"Motor Lublin","codigo":3527},{"nombre":"Radomiak Radom","codigo":7154},{"nombre":"GKS Katowice","codigo":6456},{"nombre":"Piast Gliwice","codigo":6112},{"nombre":"Bruk-Bet Termalica Nieciecza","codigo":15906},{"nombre":"Arka Gdynia","codigo":6107}]},"Niké Liga":{"pais":"Eslovaquia","equipos_total":12,"clubes":[{"nombre":"Slovan Bratislava","codigo":540},{"nombre":"DAC Dunajska Streda","codigo":4529},{"nombre":"MSK Zilina","codigo":1443},{"nombre":"Spartak Trnava","codigo":365},{"nombre":"AS Trencin","codigo":7918},{"nombre":"Zeleziarne Podbrezova","codigo":20063},{"nombre":"MFK Ružomberok","codigo":7087},{"nombre":"FC Kosice","codigo":51316},{"nombre":"FC Tatran Presov","codigo":4531},{"nombre":"KFC Komarno","codigo":32314},{"nombre":"Zemplin Michalovce","codigo":13744},{"nombre":"MFK Skalica","codigo":35488}]},"Prva Liga":{"pais":"Eslovenia","equipos_total":10,"clubes":[{"nombre":"NK Celje","codigo":710},{"nombre":"NK Maribor","codigo":790},{"nombre":"NK Olimpija Ljubljana","codigo":4772},{"nombre":"FC Koper","codigo":433},{"nombre":"NK Bravo","codigo":26985},{"nombre":"NK Radomlje","codigo":21460},{"nombre":"ND Primorje","codigo":4507},{"nombre":"NK Aluminij Kidricevo","codigo":11033},{"nombre":"NS Mura","codigo":4059},{"nombre":"NK Domžale","codigo":6248}]},"Nemzeti Bajnokság":{"pais":"Hungría","equipos_total":12,"clubes":[{"nombre":"Ferencváros TC","codigo":279},{"nombre":"Újpest FC","codigo":708},{"nombre":"Puskás Akadémia FC","codigo":37169},{"nombre":"ETO FC","codigo":6055},{"nombre":"MTK Budapest","codigo":634},{"nombre":"Debreceni VSC","codigo":84},{"nombre":"Paksi FC","codigo":12163},{"nombre":"Nyíregyháza Spartacus","codigo":6058},{"nombre":"Kisvárda FC","codigo":30613},{"nombre":"Diósgyőri VTK","codigo":9241},{"nombre":"Zalaegerszegi TE FC","codigo":1391},{"nombre":"Kazincbarcikai SC","codigo":24031}]},"Ligat ha'Al":{"pais":"Israel","equipos_total":14,"clubes":[{"nombre":"Maccabi Tel Aviv","codigo":119},{"nombre":"Maccabi Haifa","codigo":1064},{"nombre":"Hapoel Beer Sheva","codigo":2976},{"nombre":"Beitar Jerusalem","codigo":3793},{"nombre":"Maccabi Netanya","codigo":5223},{"nombre":"Hapoel Tel Aviv","codigo":1017},{"nombre":"Hapoel Jerusalem","codigo":43119},{"nombre":"Maccabi Bnei Reineh","codigo":70178},{"nombre":"Ironi Tiberias","codigo":51070},{"nombre":"FC Ashdod","codigo":6105},{"nombre":"Ironi Kiryat Shmona","codigo":6028},{"nombre":"Hapoel Petah Tikva","codigo":262},{"nombre":"Hapoel Haifa","codigo":810},{"nombre":"Ihud Bnei Sakhnin","codigo":4769}]},"Premier Division":{"pais":"Irlanda","equipos_total":10,"clubes":[{"nombre":"Shamrock Rovers","codigo":3258},{"nombre":"St. Patrick's Athletic","codigo":1189},{"nombre":"Bohemian Football Club","codigo":9211},{"nombre":"Shelbourne FC","codigo":3909},{"nombre":"Derry City","codigo":920},{"nombre":"Sligo Rovers","codigo":8780},{"nombre":"Drogheda United FC","codigo":4277},{"nombre":"Galway United FC","codigo":42394},{"nombre":"Waterford FC","codigo":7609},{"nombre":"Dundalk FC","codigo":6066}]},"Premiership":{"pais":"Irlanda del Norte","equipos_total":12,"clubes":[{"nombre":"Larne FC","codigo":3461},{"nombre":"Linfield FC","codigo":3471},{"nombre":"Coleraine FC","codigo":3831},{"nombre":"Glentoran FC","codigo":9026},{"nombre":"Dungannon Swifts","codigo":21515},{"nombre":"Cliftonville FC","codigo":1251},{"nombre":"Ballymena United","codigo":15244},{"nombre":"Portadown FC","codigo":5594},{"nombre":"Crusaders FC","codigo":21532},{"nombre":"Bangor FC","codigo":21531},{"nombre":"Carrick Rangers","codigo":8714},{"nombre":"Glenavon FC","codigo":3463}]},"Cymru Premier":{"pais":"Gales","equipos_total":12,"clubes":[{"nombre":"The New Saints","codigo":10734},{"nombre":"Caernarfon Town","codigo":22461},{"nombre":"Connah's Quay Nomads","codigo":22499},{"nombre":"Penybont FC","codigo":62026},{"nombre":"Colwyn Bay","codigo":22546},{"nombre":"Cardiff Metropolitan University","codigo":53152},{"nombre":"Barry Town United","codigo":1115},{"nombre":"Briton Ferry Llansawel","codigo":29221},{"nombre":"Flint Town United","codigo":31188},{"nombre":"Bala Town","codigo":27843},{"nombre":"Haverfordwest County","codigo":25232},{"nombre":"Llanelli Town AFC","codigo":11915}]},"Veikkausliiga":{"pais":"Finlandia","equipos_total":12,"clubes":[{"nombre":"HJK Helsinki","codigo":1008},{"nombre":"Ilves Tampere","codigo":3189},{"nombre":"Kuopion Palloseura","codigo":6251},{"nombre":"SJK Seinäjoki","codigo":23777},{"nombre":"FC Inter Turku","codigo":8042},{"nombre":"AC Oulu","codigo":7008},{"nombre":"IF Gnistan","codigo":23564},{"nombre":"Vaasan Palloseura","codigo":1102},{"nombre":"IFK Mariehamn","codigo":6017},{"nombre":"FF Jaro","codigo":3650},{"nombre":"FC Lahti","codigo":2925},{"nombre":"Turun Palloseura","codigo":2275}]},"Premium Liiga":{"pais":"Estonia","equipos_total":10,"clubes":[{"nombre":"FC Flora Tallinn","codigo":1002},{"nombre":"Kalju FC","codigo":22783},{"nombre":"FCI Levadia","codigo":5771},{"nombre":"Paide Linnameeskond","codigo":23371},{"nombre":"Pärnu JK Vaprus","codigo":33579},{"nombre":"JK Trans Narva","codigo":7130},{"nombre":"Harju JK Laagri","codigo":48277},{"nombre":"Jalgpallikool Tammeka","codigo":43214},{"nombre":"FC Kuressaare","codigo":23368},{"nombre":"FC Nomme United","codigo":28780}]},"Besta deild":{"pais":"Islandia","equipos_total":12,"clubes":[{"nombre":"Víkingur Reykjavík","codigo":5849},{"nombre":"Valur Reykjavík","codigo":1033},{"nombre":"Breidablik Kópavogur","codigo":3737},{"nombre":"Stjarnan Gardabaer","codigo":21875},{"nombre":"ÍBV Vestmannaeyjar","codigo":8036},{"nombre":"Fram Reykjavík","codigo":3832},{"nombre":"KR Reykjavík","codigo":3237},{"nombre":"KA Akureyri","codigo":1839},{"nombre":"ÍA Akranes","codigo":1231},{"nombre":"FH Hafnarfjördur","codigo":1185},{"nombre":"Keflavík ÍF","codigo":8037},{"nombre":"Thór Akureyri","codigo":21864}]},"Kategoria Superiore":{"pais":"Albania","equipos_total":10,"clubes":[{"nombre":"FK Partizani","codigo":4040},{"nombre":"KF Egnatia","codigo":27114},{"nombre":"KF Vllaznia","codigo":8671},{"nombre":"FC Dinamo City","codigo":588},{"nombre":"Flamurtari FC","codigo":12460},{"nombre":"KF Tirana","codigo":2049},{"nombre":"AF Elbasani","codigo":98106},{"nombre":"FK Bylis","codigo":21234},{"nombre":"KF Teuta","codigo":3739},{"nombre":"KF Vora","codigo":45456}]},"Premijer Liga":{"pais":"Bosnia y Herzegovina","equipos_total":10,"clubes":[{"nombre":"FK Sarajevo","codigo":282},{"nombre":"HSK Zrinjski Mostar","codigo":6808},{"nombre":"FK Borac Banja Luka","codigo":3900},{"nombre":"FK Zeljeznicar Sarajevo","codigo":2573},{"nombre":"FK Velez Mostar","codigo":628},{"nombre":"NK Siroki Brijeg","codigo":1242},{"nombre":"FK Radnik Bijeljina","codigo":11040},{"nombre":"HSK Posusje","codigo":1014},{"nombre":"FK Rudar Prijedor","codigo":24197},{"nombre":"FK Sloga Meridian","codigo":7569}]},"Premier Liga":{"pais":"Rusia","equipos_total":16,"clubes":[{"nombre":"Zenit de San Petersburgo","codigo":964},{"nombre":"FC Spartak de Moscú","codigo":232},{"nombre":"FK Krasnodar","codigo":16704},{"nombre":"Dinamo Moscú","codigo":121},{"nombre":"CSKA Moscú","codigo":2410},{"nombre":"Lokomotiv Moscú","codigo":932},{"nombre":"Rubin Kazan","codigo":2698},{"nombre":"FK Rostov","codigo":1083},{"nombre":"Krylya Sovetov Samara","codigo":2696},{"nombre":"Baltika Kaliningrad","codigo":2741},{"nombre":"Akhmat Grozny","codigo":3725},{"nombre":"FK Sochi","codigo":41231},{"nombre":"Akron Togliatti","codigo":71985},{"nombre":"FC Pari Nizhniy Novgorod","codigo":49702},{"nombre":"FK Orenburg","codigo":14589},{"nombre":"Dinamo Makhachkala","codigo":75231}]},"efbet Liga":{"pais":"Bulgaria","equipos_total":16,"clubes":[{"nombre":"Ludogorets Razgrad","codigo":31614},{"nombre":"Levski Sofia","codigo":156},{"nombre":"CSKA Sofia","codigo":208},{"nombre":"CSKA 1948","codigo":61955},{"nombre":"Botev Plovdiv","codigo":2531},{"nombre":"Arda Kardzhali","codigo":40604},{"nombre":"Lokomotiv Sofia","codigo":730},{"nombre":"Lokomotiv Plovdiv","codigo":2259},{"nombre":"Slavia Sofia","codigo":675},{"nombre":"Septemvri Sofia","codigo":40416},{"nombre":"Botev Vratsa","codigo":26462},{"nombre":"Cherno More Varna","codigo":967},{"nombre":"Beroe Stara Zagora","codigo":6764},{"nombre":"Spartak Varna","codigo":9599},{"nombre":"Dobrudzha Dobrich","codigo":4362},{"nombre":"Montana","codigo":24078}]},"Cyprus League":{"pais":"Chipre","equipos_total":14,"clubes":[{"nombre":"Pafos FC","codigo":45457},{"nombre":"APOEL FC","codigo":2784},{"nombre":"Omonia Nicosia","codigo":829},{"nombre":"AEK Larnaca","codigo":2156},{"nombre":"Aris Limassol","codigo":10586},{"nombre":"Apollon Limassol","codigo":429},{"nombre":"AEL Limassol","codigo":786},{"nombre":"Anorthosis Famagusta","codigo":3899},{"nombre":"Ethnikos Achnas","codigo":4590},{"nombre":"Krasava ENY","codigo":57870},{"nombre":"Olympiakos Nicosia","codigo":1402},{"nombre":"Akritas Chlorakas","codigo":31010},{"nombre":"Omonia Aradippou","codigo":16024},{"nombre":"Enosis Neon Paralimniou","codigo":840}]},"Premyer Liqa":{"pais":"Azerbaiyán","equipos_total":12,"clubes":[{"nombre":"Qarabağ FK","codigo":10625},{"nombre":"Sabah FK","codigo":63993},{"nombre":"Zira FK","codigo":46710},{"nombre":"Neftchi PFK","codigo":8031},{"nombre":"Turan-Tovuz IK","codigo":9526},{"nombre":"Sumqayit PFK","codigo":36999},{"nombre":"Araz-Nakhchivan","codigo":44360},{"nombre":"FC Shamakhi","codigo":8956},{"nombre":"Kapaz PFK","codigo":7090},{"nombre":"FC Imishli","codigo":103512},{"nombre":"FK Qabala","codigo":22010},{"nombre":"Karvan Yevlakh","codigo":9796}]},"Vysheyshaya Liga":{"pais":"Bielorrusia","equipos_total":16,"clubes":[{"nombre":"ML Vitebsk","codigo":36596},{"nombre":"Dinamo Minsk","codigo":1180},{"nombre":"Dynamo Brest","codigo":6131},{"nombre":"Neman Grodno","codigo":14178},{"nombre":"Slavia Mozyr","codigo":6423},{"nombre":"FK Gomel","codigo":10694},{"nombre":"Torpedo-BelAZ Zhodino","codigo":7964},{"nombre":"Isloch Minsk Region","codigo":36755},{"nombre":"FK Minsk","codigo":23664},{"nombre":"BATE Borisov","codigo":713},{"nombre":"FK Vitebsk","codigo":17959},{"nombre":"Dnepr Mogilev","codigo":4394},{"nombre":"Arsenal Dzerzhinsk","codigo":72822},{"nombre":"Belshina Bobruisk","codigo":3886},{"nombre":"Naftan Novopolotsk","codigo":8563},{"nombre":"FK Baranovichi","codigo":24009}]},"Virsliga":{"pais":"Letonia","equipos_total":10,"clubes":[{"nombre":"Riga FC","codigo":48325},{"nombre":"FC RFS","codigo":33783},{"nombre":"FK Liepaja","codigo":43162},{"nombre":"FK Auda","codigo":8606},{"nombre":"FS Jelgava","codigo":27118},{"nombre":"BFC Daugavpils","codigo":28931},{"nombre":"FK Grobina","codigo":40880},{"nombre":"FK Tukums 2000","codigo":28937},{"nombre":"SK Super Nova","codigo":40788},{"nombre":"Ogre United","codigo":107916}]},"A Lyga":{"pais":"Lituania","equipos_total":10,"clubes":[{"nombre":"FK Kauno Žalgiris","codigo":40090},{"nombre":"FK Žalgiris Vilnius","codigo":602},{"nombre":"FK Panevėžys","codigo":49149},{"nombre":"FK Sūduva Marijampolė","codigo":8047},{"nombre":"FC Hegelmann","codigo":69752},{"nombre":"FA Šiauliai","codigo":42310},{"nombre":"FK Banga Gargždai","codigo":23559},{"nombre":"FC Džiugas Telšiai","codigo":28740},{"nombre":"FK Riteriai","codigo":32832},{"nombre":"FK TransINVEST","codigo":98841}]},"Premier League Opening Round":{"pais":"Malta","equipos_total":12,"clubes":[{"nombre":"Floriana FC","codigo":10603},{"nombre":"Hamrun Spartans","codigo":17149},{"nombre":"Birkirkara FC","codigo":10262},{"nombre":"Sliema Wanderers","codigo":329},{"nombre":"Hibernians FC","codigo":10604},{"nombre":"Valletta FC","codigo":6335},{"nombre":"Marsaxlokk FC","codigo":10605},{"nombre":"Zabbar St. Patrick FC","codigo":34423},{"nombre":"Mosta FC","codigo":32125},{"nombre":"Gzira United FC","codigo":32768},{"nombre":"Naxxar Lions FC","codigo":32130},{"nombre":"Tarxien Rainbows","codigo":21395}]},"Superliga e Kosovës":{"pais":"Kosovo","equipos_total":10,"clubes":[{"nombre":"FC Drita","codigo":33741},{"nombre":"FC Ballkani","codigo":28082},{"nombre":"FC Prishtina","codigo":1918},{"nombre":"FC Malisheva","codigo":80996},{"nombre":"SC Gjilani","codigo":29053},{"nombre":"KF Llapi","codigo":33206},{"nombre":"KF Drenica","codigo":19697},{"nombre":"KF Dukagjini","codigo":46887},{"nombre":"FC Ferizaj","codigo":29051},{"nombre":"KF Prishtina e Re","codigo":95597}]},"Prva Makedonska Fudbalska Liga":{"pais":"Macedonia del Norte","equipos_total":12,"clubes":[{"nombre":"Shkendija Tetovo","codigo":1167},{"nombre":"Struga Trim & Lum","codigo":64534},{"nombre":"Vardar Skopje","codigo":77},{"nombre":"Sileks Kratovo","codigo":535},{"nombre":"Arsimi","codigo":101280},{"nombre":"AP Brera Strumica","codigo":45935},{"nombre":"Pelister Bitola","codigo":534},{"nombre":"Makedonija Gjorce Petrov","codigo":8397},{"nombre":"Rabotnicki Skopje","codigo":4641},{"nombre":"Bashkimi","codigo":8334},{"nombre":"Tikves Kavadarci","codigo":8969},{"nombre":"FC Shkupi","codigo":4644}]},"Erovnuli Liga":{"pais":"Georgia","equipos_total":10,"clubes":[{"nombre":"Torpedo Kutaisi","codigo":253},{"nombre":"Iberia 1999 Tbilisi","codigo":41133},{"nombre":"Dinamo Tbilisi","codigo":663},{"nombre":"FC Dila Gori","codigo":32017},{"nombre":"FC Samgurali Tskaltubo","codigo":29675},{"nombre":"FC Gagra","codigo":22842},{"nombre":"Dinamo Batumi","codigo":11344},{"nombre":"FC Meshakhte Tkibuli","codigo":35056},{"nombre":"FC Spaeri Tbilisi","codigo":72702},{"nombre":"FC Rustavi","codigo":1799}]},"Meridianbet 1. CFL":{"pais":"Montenegro","equipos_total":10,"clubes":[{"nombre":"Buducnost Podgorica","codigo":4391},{"nombre":"FK Sutjeska Niksic","codigo":3070},{"nombre":"FK Decic Tuzi","codigo":11065},{"nombre":"OFK Petrovac","codigo":12889},{"nombre":"FK Mornar Bar","codigo":4639},{"nombre":"FK Jezero","codigo":21575},{"nombre":"FK Mladost Donja Gorica","codigo":76077},{"nombre":"FK Bokelj","codigo":4949},{"nombre":"Jedinstvo Bijelo Polje","codigo":8357},{"nombre":"Arsenal Tivat","codigo":37989}]},"BGL Ligue":{"pais":"Luxemburgo","equipos_total":16,"clubes":[{"nombre":"FC Progrès Niederkorn","codigo":12346},{"nombre":"FC Differdange 03","codigo":11914},{"nombre":"FC UNA Strassen","codigo":21835},{"nombre":"US Mondorf-Les-Bains","codigo":21274},{"nombre":"F91 Dudelange","codigo":853},{"nombre":"Racing FC Union Luxembourg","codigo":13467},{"nombre":"Jeunesse Esch","codigo":1257},{"nombre":"FC Atert Bissen","codigo":21640},{"nombre":"Swift Hesperange","codigo":9284},{"nombre":"Union Titus Petange","codigo":48712},{"nombre":"FC Victoria Rosport","codigo":2660},{"nombre":"US Hostert","codigo":21645},{"nombre":"FC Rodange 91","codigo":21803},{"nombre":"UN Käerjeng 97","codigo":12004},{"nombre":"FC Jeunesse Canach","codigo":21465},{"nombre":"FC Mamer 32","codigo":21454}]},"Super Liga":{"pais":"Moldavia","equipos_total":8,"clubes":[{"nombre":"FC Sheriff Tiraspol","codigo":2481},{"nombre":"FC Zimbru Chisinau","codigo":2714},{"nombre":"FC Milsami Orhei","codigo":30686},{"nombre":"FC Petrocub Hincesti","codigo":46643},{"nombre":"FC Balti","codigo":83016},{"nombre":"CSF Spartanii Sportul Selemet","codigo":73711},{"nombre":"Dacia Buiucani","codigo":39003},{"nombre":"Politehnica UTM Сhișinău","codigo":90107}]},"Primera Divisió":{"pais":"Andorra","equipos_total":10,"clubes":[{"nombre":"Inter Club d'Escaldes","codigo":41916},{"nombre":"FC Rànger's","codigo":10741},{"nombre":"UE Santa Coloma","codigo":28633},{"nombre":"FC Santa Coloma","codigo":10854},{"nombre":"Atlètic Club d'Escaldes","codigo":64780},{"nombre":"Penya Encarnada d'Andorra","codigo":62573},{"nombre":"Club Esportiu Carroi","codigo":64779},{"nombre":"CF Esperança d'Andorra","codigo":100967},{"nombre":"FC Ordino","codigo":40270},{"nombre":"FC Pas de la Casa","codigo":84028}]},"Torneo Apertura":{"pais":"Argentina","equipos_total":30,"clubes":[{"nombre":"CA River Plate","codigo":209},{"nombre":"CA Boca Juniors","codigo":189},{"nombre":"Racing Club","codigo":1444},{"nombre":"CA Rosario Central","codigo":1418},{"nombre":"Club Estudiantes de La Plata","codigo":288},{"nombre":"CA San Lorenzo de Almagro","codigo":1775},{"nombre":"CA Talleres","codigo":3938},{"nombre":"AA Argentinos Juniors","codigo":1030},{"nombre":"CA Lanús","codigo":333},{"nombre":"CA Tigre","codigo":11831},{"nombre":"CA Independiente","codigo":1234},{"nombre":"CS Independiente Rivadavia","codigo":12179},{"nombre":"CA Vélez Sarsfield","codigo":1029},{"nombre":"CA Platense","codigo":928},{"nombre":"CA Belgrano","codigo":2417},{"nombre":"CA Newell's Old Boys","codigo":1286},{"nombre":"CA Unión (Santa Fe)","codigo":7097},{"nombre":"CSD Defensa y Justicia","codigo":2402},{"nombre":"Instituto ACC","codigo":1829},{"nombre":"Club de Gimnasia y Esgrima La Plata","codigo":1106},{"nombre":"CA Huracán","codigo":2063},{"nombre":"CA Barracas Central","codigo":25184},{"nombre":"CA Banfield","codigo":830},{"nombre":"CA Gimnasia y Esgrima (Mendoza)","codigo":14687},{"nombre":"CA Sarmiento (Junín)","codigo":12454},{"nombre":"Club Atlético Tucumán","codigo":14554},{"nombre":"Club Deportivo Riestra","codigo":19775},{"nombre":"AA Estudiantes (Río Cuarto)","codigo":14602},{"nombre":"CA Aldosivi","codigo":12301},{"nombre":"CA Central Córdoba (SdE)","codigo":31284}]},"Primera Nacional":{"pais":"Argentina","equipos_total":16,"clubes":[{"nombre":"CD Godoy Cruz Antonio Tomba","codigo":12543},{"nombre":"CA Colón","codigo":1548},{"nombre":"CS Deportivo Madryn","codigo":34752},{"nombre":"CA Chaco For Ever","codigo":14680},{"nombre":"Club de Gimnasia y Tiro","codigo":14567},{"nombre":"Club Deportivo Maipú","codigo":14714},{"nombre":"CA All Boys","codigo":1824},{"nombre":"CA Colegiales","codigo":12640},{"nombre":"CA San Miguel","codigo":15493},{"nombre":"CA Central Norte","codigo":8379},{"nombre":"CA Güemes","codigo":14113},{"nombre":"CA San Telmo","codigo":12385},{"nombre":"AMSD Atlético de Rafaela","codigo":12539},{"nombre":"CA Acassuso","codigo":12677},{"nombre":"Club Ciudad de Bolívar","codigo":93636},{"nombre":"CA Ferrocarril Midland","codigo":14686}]},"Primera División B Apertura":{"pais":"Argentina","equipos_total":21,"clubes":[{"nombre":"CA Brown (Adrogué)","codigo":14681},{"nombre":"CSD Flandria","codigo":13341},{"nombre":"Club Comunicaciones","codigo":15377},{"nombre":"Club Villa Dálmine","codigo":8356},{"nombre":"Real Pilar FC","codigo":75858},{"nombre":"CA Ferrocarril Midland","codigo":14686},{"nombre":"CA Excursionistas","codigo":19632},{"nombre":"CA Villa San Carlos","codigo":19517},{"nombre":"Sacachispas FC","codigo":25374},{"nombre":"CA Acassuso","codigo":12677},{"nombre":"CA Fénix","codigo":18087},{"nombre":"CS Deportivo Merlo","codigo":19529},{"nombre":"CSC Deportivo Laferrere","codigo":19636},{"nombre":"CA Argentino (Merlo)","codigo":17486},{"nombre":"CSD San Martín (Burzaco)","codigo":28142},{"nombre":"Club Sportivo Italiano","codigo":15378},{"nombre":"CA Argentino de Quilmes","codigo":22603},{"nombre":"CS Dock Sud","codigo":14675},{"nombre":"CD UAI Urquiza","codigo":45560},{"nombre":"Club Deportivo Armenio","codigo":13264},{"nombre":"CSD Liniers","codigo":98564}]},"Torneo Federal A":{"pais":"Argentina","equipos_total":37,"clubes":[{"nombre":"Atlético Escobar FC","codigo":135792},{"nombre":"CAS Defensores de Belgrano (Villa Ramallo)","codigo":25348},{"nombre":"CA El Linqueño","codigo":18534},{"nombre":"CA Independiente (Chivilcoy)","codigo":29680},{"nombre":"Club Sportivo Belgrano (San Francisco)","codigo":15414},{"nombre":"CA Douglas Haig","codigo":14718},{"nombre":"Sportivo AC (Las Parejas)","codigo":14597},{"nombre":"Club Gimnasia y Esgrima (Conc. del Uruguay)","codigo":14561},{"nombre":"CA 9 de Julio (Rafaela)","codigo":12487},{"nombre":"CSCD Gimnasia y Esgrima (Chivilcoy)","codigo":123665},{"nombre":"CA Sarmiento (Resistencia)","codigo":30838},{"nombre":"CS General San Martín (Formosa)","codigo":58993},{"nombre":"CA Defensores de Vilelas","codigo":107445},{"nombre":"CA Sarmiento (La Banda)","codigo":30079},{"nombre":"CA Bartolomé Mitre (Posadas)","codigo":117574},{"nombre":"CA Tucumán Central","codigo":128105},{"nombre":"Club Sol de América (Formosa)","codigo":23173},{"nombre":"Centro Juventud Antoniana","codigo":10129},{"nombre":"CA Boca Unidos","codigo":13549},{"nombre":"AC San Martín (Mendoza)","codigo":8413},{"nombre":"CA Juventud Unida Universitario","codigo":18911},{"nombre":"CA Huracán Las Heras","codigo":17591},{"nombre":"CSB Atenas (Río Cuarto)","codigo":30084},{"nombre":"Club Cipolletti","codigo":19870},{"nombre":"CA Costa Brava","codigo":79503},{"nombre":"Club Deportivo Rincón","codigo":83668},{"nombre":"FADEP (Mendoza)","codigo":92982},{"nombre":"CD Argentino (Monte Maíz)","codigo":97822},{"nombre":"Círculo Deportivo","codigo":78072},{"nombre":"CB Ramón Santamarina","codigo":9638},{"nombre":"CA Alvarado","codigo":12563},{"nombre":"Club Villa Mitre","codigo":12741},{"nombre":"Club Sol de Mayo","codigo":63109},{"nombre":"CA Germinal","codigo":14316},{"nombre":"CSA Guillermo Brown","codigo":14683},{"nombre":"CA Kimberley","codigo":28619},{"nombre":"Club Olimpo","codigo":7468}]},"Série A":{"pais":"Brasil","equipos_total":20,"clubes":[{"nombre":"SE Palmeiras","codigo":1023},{"nombre":"CR Flamengo","codigo":614},{"nombre":"Cruzeiro Esporte Clube","codigo":609},{"nombre":"Botafogo de Futebol e Regatas","codigo":537},{"nombre":"Clube de Regatas Vasco da Gama","codigo":978},{"nombre":"Esporte Clube Bahia","codigo":10010},{"nombre":"SC Corinthians","codigo":199},{"nombre":"Fluminense Football Club","codigo":2462},{"nombre":"Santos FC","codigo":221},{"nombre":"Red Bull Bragantino","codigo":8793},{"nombre":"Clube Atlético Mineiro","codigo":330},{"nombre":"Grêmio Foot-Ball Porto Alegrense","codigo":210},{"nombre":"São Paulo FC","codigo":585},{"nombre":"Sport Club Internacional","codigo":6600},{"nombre":"Club Athletico Paranaense","codigo":679},{"nombre":"Esporte Clube Vitória","codigo":2125},{"nombre":"Mirassol Futebol Clube (SP)","codigo":3876},{"nombre":"Coritiba Foot Ball Club","codigo":776},{"nombre":"Clube do Remo (PA)","codigo":10997},{"nombre":"Associação Chapecoense de Futebol","codigo":17776}]},"Série B":{"pais":"Brasil","equipos_total":20,"clubes":[{"nombre":"Fortaleza Esporte Clube","codigo":10870},{"nombre":"Sport Club do Recife","codigo":8718},{"nombre":"Esporte Clube Juventude","codigo":10492},{"nombre":"Goiás EC","codigo":3197},{"nombre":"Ceará Sporting Club","codigo":2029},{"nombre":"Grêmio Novorizontino","codigo":37474},{"nombre":"Criciúma EC","codigo":7178},{"nombre":"Clube de Regatas Brasil (AL)","codigo":11449},{"nombre":"Operário Ferroviário Esporte Clube (PR)","codigo":27214},{"nombre":"Cuiabá Esporte Clube (MT)","codigo":28022},{"nombre":"América Futebol Clube (MG)","codigo":2863},{"nombre":"Athletic Club","codigo":64918},{"nombre":"Avaí FC","codigo":2035},{"nombre":"Vila Nova Futebol Clube (GO)","codigo":5677},{"nombre":"Atlético Clube Goianiense","codigo":15172},{"nombre":"Botafogo FC","codigo":9030},{"nombre":"São Bernardo FC","codigo":16439},{"nombre":"Associação Atlética Ponte Preta SP","codigo":1134},{"nombre":"Londrina Esporte Clube (PR)","codigo":1693},{"nombre":"Clube Náutico Capibaribe","codigo":2646}]},"Série C":{"pais":"Brasil","equipos_total":20,"clubes":[{"nombre":"Amazonas FC","codigo":87727},{"nombre":"Ferroviária","codigo":15882},{"nombre":"Paysandu SC","codigo":6347},{"nombre":"Volta Redonda Futebol Clube (RJ)","codigo":4176},{"nombre":"AD Confiança","codigo":3280},{"nombre":"Botafogo FC","codigo":17964},{"nombre":"SER Caxias do Sul (RS)","codigo":9141},{"nombre":"Brusque Futebol Clube (SC)","codigo":14390},{"nombre":"Anápolis FC","codigo":17568},{"nombre":"Floresta Esporte Clube (CE)","codigo":65477},{"nombre":"Figueirense Futebol Clube","codigo":4064},{"nombre":"Ypiranga FC","codigo":16869},{"nombre":"Ituano Futebol Clube (SP)","codigo":4773},{"nombre":"Santa Cruz FC (PE)","codigo":1785},{"nombre":"AA Internacional de Limeira","codigo":308},{"nombre":"Maranhão AC","codigo":34293},{"nombre":"Guarani Futebol Clube (SP)","codigo":1755},{"nombre":"Maringá FC","codigo":33003},{"nombre":"Associação Olímpica de Itabaiana (SE)","codigo":8547},{"nombre":"Barra FC","codigo":52519}]},"Liga de Ascenso":{"pais":"Chile","equipos_total":16,"clubes":[{"nombre":"Unión Española","codigo":4321},{"nombre":"Deportes Iquique","codigo":18076},{"nombre":"CD Cobreloa","codigo":9103},{"nombre":"Deportes Antofagasta","codigo":17222},{"nombre":"Deportes Temuco","codigo":13554},{"nombre":"Curicó Unido","codigo":19027},{"nombre":"Rangers de Talca","codigo":18720},{"nombre":"Deportes Recoleta","codigo":61808},{"nombre":"San Marcos de Arica","codigo":23162},{"nombre":"San Luis de Quillota","codigo":19280},{"nombre":"Santiago Wanderers","codigo":2723},{"nombre":"Deportes Copiapó","codigo":20694},{"nombre":"Unión San Felipe","codigo":15952},{"nombre":"Magallanes","codigo":13394},{"nombre":"Deportes Puerto Montt","codigo":11657},{"nombre":"Deportes Santa Cruz","codigo":20683}]},"Liga DIMAYOR I":{"pais":"Colombia","equipos_total":20,"clubes":[{"nombre":"Atlético Nacional","codigo":8172},{"nombre":"Junior de Barranquilla","codigo":11854},{"nombre":"CD América de Cali","codigo":2352},{"nombre":"Independiente Medellín","codigo":10093},{"nombre":"Deportes Tolima","codigo":10503},{"nombre":"Millonarios FC","codigo":2350},{"nombre":"Deportivo Cali","codigo":9961},{"nombre":"Independiente Santa Fe","codigo":11648},{"nombre":"Atlético Bucaramanga","codigo":6495},{"nombre":"Once Caldas","codigo":6984},{"nombre":"Internacional de Bogotá","codigo":17425},{"nombre":"Fortaleza CEIF","codigo":32041},{"nombre":"Águilas Doradas","codigo":20590},{"nombre":"Llaneros FC","codigo":38628},{"nombre":"Asociación Deportivo Pasto","codigo":10090},{"nombre":"Cúcuta Deportivo","codigo":13379},{"nombre":"Alianza FC","codigo":22902},{"nombre":"Jaguares de Córdoba","codigo":39252},{"nombre":"Deportivo Pereira","codigo":9811},{"nombre":"Boyacá Chicó FC","codigo":14649}]},"Primera División":{"pais":"Costa Rica","equipos_total":10,"clubes":[{"nombre":"LD Alajuelense","codigo":6478},{"nombre":"Deportivo Saprissa","codigo":4720},{"nombre":"CS Cartaginés","codigo":18577},{"nombre":"CS Herediano","codigo":2677},{"nombre":"Sporting FC","codigo":54649},{"nombre":"AD Municipal Liberia","codigo":18579},{"nombre":"Municipal Pérez Zeledón","codigo":8601},{"nombre":"Puntarenas FC","codigo":9807},{"nombre":"AD San Carlos","codigo":18659},{"nombre":"Guadalupe FC","codigo":18574}]},"LigaPro Serie A":{"pais":"Ecuador","equipos_total":16,"clubes":[{"nombre":"Independiente del Valle","codigo":19309},{"nombre":"LDU Quito","codigo":9855},{"nombre":"Barcelona SC Guayaquil","codigo":3523},{"nombre":"CD Universidad Católica","codigo":17584},{"nombre":"CS Emelec","codigo":4561},{"nombre":"Orense SC","codigo":36020},{"nombre":"SD Aucas","codigo":6362},{"nombre":"CD Macará","codigo":17426},{"nombre":"Delfín SC","codigo":19304},{"nombre":"Deportivo Cuenca","codigo":8781},{"nombre":"Leones FC","codigo":70466},{"nombre":"Mushuc Runa SC","codigo":25576},{"nombre":"Libertad FC","codigo":87068},{"nombre":"Guayaquil City FC","codigo":25569},{"nombre":"Manta FC","codigo":18099},{"nombre":"Técnico Universitario","codigo":19104}]},"Liga Nacional":{"pais":"Guatemala","equipos_total":23,"clubes":[{"nombre":"CSD Municipal","codigo":13047},{"nombre":"Antigua GFC","codigo":19006},{"nombre":"CSD Xelajú MC","codigo":18578},{"nombre":"Comunicaciones FC","codigo":9709},{"nombre":"CD Malacateco","codigo":19066},{"nombre":"Deportivo Mixco","codigo":35101},{"nombre":"Cobán Imperial","codigo":6800},{"nombre":"Deportivo Achuapa","codigo":38141},{"nombre":"Deportivo Guastatoya","codigo":45174},{"nombre":"Aurora FC","codigo":19008},{"nombre":"Deportivo Marquense","codigo":16543},{"nombre":"Atlético de Mictlán","codigo":19010},{"nombre":"CD Olimpia","codigo":2720},{"nombre":"Real CD España","codigo":13293},{"nombre":"CD Motagua Tegucigalpa","codigo":9708},{"nombre":"CD Marathón","codigo":4523},{"nombre":"Olancho FC","codigo":55746},{"nombre":"Platense FC","codigo":11090},{"nombre":"Juticalpa FC","codigo":46640},{"nombre":"Lobos de la UPNFM","codigo":46019},{"nombre":"CD Victoria La Ceiba","codigo":2445},{"nombre":"Génesis / Policía Nacional FC","codigo":122142},{"nombre":"CD Choloma","codigo":37704}]},"Jamaica Premier League":{"pais":"Jamaica","equipos_total":14,"clubes":[{"nombre":"Mount Pleasant FA","codigo":68653},{"nombre":"Montego Bay United FC","codigo":3007},{"nombre":"Arnett Gardens FC","codigo":30968},{"nombre":"Cavalier FC","codigo":39197},{"nombre":"Portmore United FC","codigo":4292},{"nombre":"Tivoli Gardens FC","codigo":9702},{"nombre":"Waterhouse FC","codigo":13567},{"nombre":"Racing United FC","codigo":120857},{"nombre":"Chapelton Maroons","codigo":89613},{"nombre":"Dunbeholden FC","codigo":71425},{"nombre":"Harbour View FC","codigo":1178},{"nombre":"Molynes United FC","codigo":89435},{"nombre":"Spanish Town Police FC","codigo":132139},{"nombre":"Treasure Beach FC","codigo":114574}]},"Liga MX Clausura":{"pais":"México","equipos_total":18,"clubes":[{"nombre":"CF América","codigo":3631},{"nombre":"Deportivo Toluca FC","codigo":1804},{"nombre":"CD Cruz Azul","codigo":3711},{"nombre":"Tigres UANL","codigo":7055},{"nombre":"CD Guadalajara","codigo":6711},{"nombre":"CF Monterrey","codigo":2407},{"nombre":"Pumas UNAM","codigo":7633},{"nombre":"CF Pachuca","codigo":4035},{"nombre":"Club Tijuana","codigo":13353},{"nombre":"Club León FC","codigo":4941},{"nombre":"FC Juárez","codigo":49283},{"nombre":"Club Necaxa","codigo":1146},{"nombre":"Atlético de San Luis","codigo":40188},{"nombre":"Santos Laguna","codigo":1403},{"nombre":"Atlas Guadalajara","codigo":8590},{"nombre":"Querétaro FC","codigo":4961},{"nombre":"Club Puebla","codigo":5662},{"nombre":"Mazatlán FC","codigo":82696}]},"Liga de Expansión MX Clausura":{"pais":"México","equipos_total":15,"clubes":[{"nombre":"Tampico Madero","codigo":12728},{"nombre":"CF Atlante","codigo":6709},{"nombre":"CD Leones Negros de la UdeG","codigo":23505},{"nombre":"Venados FC Yucatán","codigo":18662},{"nombre":"Club Atlético Morelia","codigo":5623},{"nombre":"Atlético La Paz","codigo":100124},{"nombre":"CD Irapuato","codigo":4488},{"nombre":"Correcaminos de la UAT","codigo":13354},{"nombre":"CD Tapatío","codigo":13362},{"nombre":"Mineros de Zacatecas","codigo":44772},{"nombre":"Dorados de Sinaloa","codigo":10091},{"nombre":"Tepatitlán FC","codigo":64345},{"nombre":"Tlaxcala FC","codigo":42781},{"nombre":"Cancún FC","codigo":83082},{"nombre":"Alebrijes de Oaxaca","codigo":30111}]},"Liga Panameña de Fútbol Clausura":{"pais":"Panamá","equipos_total":12,"clubes":[{"nombre":"CD Plaza Amador","codigo":20960},{"nombre":"Sporting San Miguelito","codigo":1708},{"nombre":"CD Universitario","codigo":18952},{"nombre":"Tauro FC","codigo":12371},{"nombre":"San Francisco FC","codigo":11698},{"nombre":"Alianza FC Panama","codigo":18820},{"nombre":"CD Árabe Unido","codigo":17522},{"nombre":"Veraguas United FC","codigo":48217},{"nombre":"CA Independiente","codigo":28218},{"nombre":"UMECIT FC","codigo":89061},{"nombre":"Herrera FC","codigo":55384},{"nombre":"Unión Coclé FC","codigo":91052}]},"Liga 2":{"pais":"Perú","equipos_total":18,"clubes":[{"nombre":"Alianza Universidad","codigo":35589},{"nombre":"CD Unión Comercio","codigo":31337},{"nombre":"Universidad César Vallejo","codigo":6889},{"nombre":"Comerciantes FC","codigo":88406},{"nombre":"Universidad San Martín de Porres","codigo":11622},{"nombre":"Pirata FC","codigo":71432},{"nombre":"ADA Jaén","codigo":114373},{"nombre":"Bentín Tacna Heroica","codigo":123760},{"nombre":"Deportivo Llacuabamba","codigo":78641},{"nombre":"Santos FC Nazca","codigo":73342},{"nombre":"Ayacucho FC","codigo":21178},{"nombre":"FC San Marcos","codigo":114390},{"nombre":"Academia Deportiva Cantolao","codigo":11247},{"nombre":"Club Unión Minas","codigo":17966},{"nombre":"Carlos A. Mannucci","codigo":19520},{"nombre":"Estudiantil CNI","codigo":124163},{"nombre":"Deportivo Binacional","codigo":41054},{"nombre":"Sport Huancayo II","codigo":38335}]},"Liga Puerto Rico Apertura":{"pais":"Puerto Rico","equipos_total":10,"clubes":[{"nombre":"Academia Quintana","codigo":54100},{"nombre":"Ponce FC","codigo":128296},{"nombre":"Metropolitan FA","codigo":51226},{"nombre":"San Juan FC","codigo":128299},{"nombre":"Puerto Rico Surf","codigo":128297},{"nombre":"Caguas Sporting FC","codigo":103045},{"nombre":"FC Mayagüez","codigo":73175},{"nombre":"DS Edusoccer","codigo":128298},{"nombre":"EF Taurinos de Cayey","codigo":128300},{"nombre":"Guayama FC","codigo":42557}]},"Liga AUF Apertura":{"pais":"Uruguay","equipos_total":16,"clubes":[{"nombre":"CA Peñarol","codigo":861},{"nombre":"Club Nacional","codigo":866},{"nombre":"Liverpool FC Montevideo","codigo":10663},{"nombre":"Defensor Sporting Club","codigo":2619},{"nombre":"CA Juventud","codigo":17428},{"nombre":"Racing Club de Montevideo","codigo":14758},{"nombre":"Montevideo City Torque","codigo":37535},{"nombre":"CA Boston River","codigo":18074},{"nombre":"Montevideo Wanderers","codigo":2403},{"nombre":"Central Español FC","codigo":10960},{"nombre":"Club Deportivo Maldonado","codigo":18075},{"nombre":"Albion FC","codigo":42149},{"nombre":"Cerro Largo FC","codigo":20189},{"nombre":"Danubio FC","codigo":1306},{"nombre":"CA Progreso","codigo":17595},{"nombre":"CA Cerro","codigo":14806}]},"Major League Soccer":{"pais":"Estados Unidos","equipos_total":30,"clubes":[{"nombre":"Inter Miami CF","codigo":69261},{"nombre":"Los Ángeles FC","codigo":51828},{"nombre":"Atlanta United FC","codigo":51663},{"nombre":"Los Ángeles Galaxy","codigo":1061},{"nombre":"Vancouver Whitecaps FC","codigo":6321},{"nombre":"FC Cincinnati","codigo":51772},{"nombre":"Columbus Crew","codigo":813},{"nombre":"Toronto FC","codigo":11141},{"nombre":"Portland Timbers","codigo":4291},{"nombre":"Austin FC","codigo":72309},{"nombre":"New York City FC","codigo":40058},{"nombre":"Orlando City SC","codigo":45604},{"nombre":"San Diego FC","codigo":114977},{"nombre":"Chicago Fire FC","codigo":432},{"nombre":"Seattle Sounders FC","codigo":9636},{"nombre":"Minnesota United FC","codigo":56089},{"nombre":"Real Salt Lake City","codigo":6643},{"nombre":"Charlotte FC","codigo":78435},{"nombre":"Nashville SC","codigo":63966},{"nombre":"Houston Dynamo FC","codigo":9168},{"nombre":"New England Revolution","codigo":626},{"nombre":"Colorado Rapids","codigo":1247},{"nombre":"Philadelphia Union","codigo":25467},{"nombre":"St. Louis CITY SC","codigo":82686},{"nombre":"CF Montréal","codigo":4078},{"nombre":"FC Dallas","codigo":8816},{"nombre":"Red Bull New York","codigo":623},{"nombre":"D.C. United","codigo":2440},{"nombre":"Sporting Kansas City","codigo":4284},{"nombre":"San José Earthquakes","codigo":218}]},"USL Championship":{"pais":"Estados Unidos","equipos_total":25,"clubes":[{"nombre":"Tampa Bay Rowdies","codigo":23565},{"nombre":"Lexington SC","codigo":103004},{"nombre":"Phoenix Rising FC","codigo":33414},{"nombre":"Louisville City FC","codigo":46316},{"nombre":"Colorado Springs Switchbacks FC","codigo":45805},{"nombre":"San Antonio FC","codigo":52910},{"nombre":"Rhode Island FC","codigo":103722},{"nombre":"FC Tulsa","codigo":24260},{"nombre":"Las Vegas Lights FC","codigo":62204},{"nombre":"Sacramento Republic FC","codigo":40835},{"nombre":"Miami FC","codigo":42814},{"nombre":"Monterey Bay FC","codigo":87631},{"nombre":"El Paso Locomotive FC","codigo":67375},{"nombre":"New Mexico United","codigo":70056},{"nombre":"Hartford Athletic","codigo":67984},{"nombre":"Oakland Roots SC","codigo":69044},{"nombre":"Detroit City FC","codigo":38647},{"nombre":"Charleston Battery","codigo":4115},{"nombre":"Orange County SC","codigo":31068},{"nombre":"Loudoun United FC","codigo":68031},{"nombre":"Indy Eleven","codigo":39148},{"nombre":"Birmingham Legion FC","codigo":64480},{"nombre":"Pittsburgh Riverhounds SC","codigo":4290},{"nombre":"Sporting Club Jacksonville","codigo":130654},{"nombre":"Brooklyn FC","codigo":129326}]},"USL League One":{"pais":"Estados Unidos","equipos_total":17,"clubes":[{"nombre":"Spokane Velocity FC","codigo":114568},{"nombre":"Union Omaha","codigo":77059},{"nombre":"One Knoxville SC","codigo":102031},{"nombre":"Greenville Triumph SC","codigo":69055},{"nombre":"Chattanooga Red Wolves SC","codigo":69398},{"nombre":"Charlotte Independence","codigo":46717},{"nombre":"Portland Hearts of Pine","codigo":124312},{"nombre":"AV Alta FC","codigo":119858},{"nombre":"FC Naples","codigo":120328},{"nombre":"Athletic Club Boise","codigo":133925},{"nombre":"Corpus Christi FC","codigo":80095},{"nombre":"Westchester SC","codigo":122406},{"nombre":"Richmond Kickers","codigo":16931},{"nombre":"Forward Madison FC","codigo":69748},{"nombre":"Fort Wayne FC","codigo":90973},{"nombre":"Sarasota Paradise","codigo":116142},{"nombre":"New York Cosmos","codigo":4835}]},"Liga FUTVE Apertura":{"pais":"Venezuela","equipos_total":13,"clubes":[{"nombre":"Universidad Central de Venezuela","codigo":43146},{"nombre":"Deportivo Táchira","codigo":13297},{"nombre":"Academia Puerto Cabello","codigo":45193},{"nombre":"Monagas SC","codigo":14596},{"nombre":"Carabobo FC","codigo":14682},{"nombre":"Deportivo La Guaira","codigo":26468},{"nombre":"Anzoátegui FC","codigo":97642},{"nombre":"Zamora FC","codigo":18018},{"nombre":"Estudiantes de Mérida","codigo":14555},{"nombre":"Caracas FC","codigo":531},{"nombre":"Metropolitanos FC","codigo":42918},{"nombre":"Portuguesa FC","codigo":22918},{"nombre":"Trujillanos FC","codigo":17392}]},"Primera División Apertura":{"pais":"Paraguay","equipos_total":34,"clubes":[{"nombre":"Club Olimpia","codigo":629},{"nombre":"Club Cerro Porteño","codigo":1214},{"nombre":"Club Libertad Asunción","codigo":9875},{"nombre":"Club Guaraní","codigo":11855},{"nombre":"Club Nacional Asunción","codigo":7098},{"nombre":"Club Sportivo Trinidense","codigo":17427},{"nombre":"Sportivo Luqueño","codigo":7656},{"nombre":"Sportivo Ameliano","codigo":95571},{"nombre":"Club Sportivo 2 de Mayo","codigo":17484},{"nombre":"Recoleta FC","codigo":14545},{"nombre":"Club Rubio Ñú (Asunción)","codigo":23170},{"nombre":"Club Sportivo San Lorenzo","codigo":19124},{"nombre":"CD Luis Angel Firpo","codigo":14083},{"nombre":"CD FAS","codigo":14082},{"nombre":"CD Águila","codigo":6571},{"nombre":"CD Hércules","codigo":131292},{"nombre":"Inter FA","codigo":131588},{"nombre":"Alianza FC","codigo":14078},{"nombre":"AD Isidro Metapán","codigo":11167},{"nombre":"CD Municipal Limeño","codigo":22308},{"nombre":"CD Cacahuatique","codigo":89602},{"nombre":"CD Fuerte San Francisco","codigo":35766},{"nombre":"CD Platense Zacatecoluca","codigo":54416},{"nombre":"Zacatecoluca FC","codigo":120637},{"nombre":"LD Alajuelense","codigo":6478},{"nombre":"Deportivo Saprissa","codigo":4720},{"nombre":"CS Cartaginés","codigo":18577},{"nombre":"CS Herediano","codigo":2677},{"nombre":"Sporting FC","codigo":54649},{"nombre":"AD Municipal Liberia","codigo":18579},{"nombre":"Municipal Pérez Zeledón","codigo":8601},{"nombre":"Puntarenas FC","codigo":9807},{"nombre":"AD San Carlos","codigo":18659},{"nombre":"Guadalupe FC","codigo":18574}]},"División Intermedia":{"pais":"Paraguay","equipos_total":16,"clubes":[{"nombre":"Club General Caballero (JLM)","codigo":95573},{"nombre":"Atlético Tembetary","codigo":908},{"nombre":"Club Sol de América","codigo":14491},{"nombre":"Independiente FBC","codigo":30082},{"nombre":"Resistencia Sport Club","codigo":29175},{"nombre":"Deportivo Capiatá","codigo":28609},{"nombre":"Club 12 de Junio","codigo":110977},{"nombre":"3 de Noviembre","codigo":102964},{"nombre":"Club Benjamín Aceval","codigo":30554},{"nombre":"CD Santaní","codigo":29423},{"nombre":"Encarnación FC","codigo":114958},{"nombre":"Club Fernando de la Mora","codigo":18730},{"nombre":"Guaireña FC","codigo":63181},{"nombre":"Paraguari Atlético Club","codigo":137878},{"nombre":"Sportivo Carapeguá","codigo":35297},{"nombre":"Tacuary Football Club","codigo":6880}]},"División Profesional":{"pais":"Bolivia","equipos_total":16,"clubes":[{"nombre":"Bolívar La Paz","codigo":6878},{"nombre":"Club Always Ready","codigo":42208},{"nombre":"Blooming Santa Cruz","codigo":8056},{"nombre":"Club Deportivo Guabirá","codigo":17422},{"nombre":"The Strongest La Paz","codigo":5570},{"nombre":"San Antonio Bulo Bulo","codigo":92979},{"nombre":"CA Nacional Potosí","codigo":23171},{"nombre":"Club Deportivo Oriente Petrolero","codigo":6985},{"nombre":"Gualberto Villarroel San José","codigo":132121},{"nombre":"Real Oruro","codigo":100047},{"nombre":"Club A.B.B.","codigo":93043},{"nombre":"Universitario de Vinto","codigo":92977},{"nombre":"CD Real Tomayapo","codigo":75558},{"nombre":"Club Aurora","codigo":12621},{"nombre":"Club Independiente Petrolero","codigo":30854},{"nombre":"Real Potosí","codigo":966}]},"Liga de Primera":{"pais":"Chile","equipos_total":16,"clubes":[{"nombre":"Universidad de Chile","codigo":1037},{"nombre":"CD Universidad Católica","codigo":3277},{"nombre":"CSD Colo-Colo","codigo":2433},{"nombre":"CD O'Higgins","codigo":11470},{"nombre":"Coquimbo Unido","codigo":11004},{"nombre":"Audax Italiano","codigo":6363},{"nombre":"Universidad de Concepción","codigo":5622},{"nombre":"CD Palestino","codigo":6536},{"nombre":"CD Everton","codigo":7020},{"nombre":"CD Huachipato","codigo":6368},{"nombre":"Deportes Limache","codigo":26697},{"nombre":"Deportes La Serena","codigo":5747},{"nombre":"CD Ñublense","codigo":14723},{"nombre":"Deportes Concepción","codigo":14604},{"nombre":"Unión La Calera","codigo":20514},{"nombre":"CD Cobresal","codigo":17482}]},"Segunda División Profesional":{"pais":"Chile","equipos_total":13,"clubes":[{"nombre":"Santiago Morning","codigo":17520},{"nombre":"Santiago City","codigo":68776},{"nombre":"Provincial Osorno","codigo":14733},{"nombre":"Provincial Ovalle","codigo":79654},{"nombre":"Deportes Melipilla","codigo":12028},{"nombre":"Trasandino de Los Andes","codigo":12595},{"nombre":"Colchagua CD","codigo":9280},{"nombre":"San Antonio Unido","codigo":21201},{"nombre":"General Velásquez","codigo":133390},{"nombre":"Real San Joaquín","codigo":68779},{"nombre":"Brujas de Salamanca","codigo":70086},{"nombre":"Club Deportivo Concón National","codigo":109414},{"nombre":"Deportes Linares","codigo":12070}]},"Torneo DIMAYOR I":{"pais":"Colombia","equipos_total":16,"clubes":[{"nombre":"Envigado FC","codigo":2678},{"nombre":"CD Real Cartagena","codigo":22698},{"nombre":"Boyacá Patriotas FC","codigo":18189},{"nombre":"Independiente Yumbo","codigo":8624},{"nombre":"Internacional de Palmira","codigo":59721},{"nombre":"Deportes Quindío","codigo":14442},{"nombre":"Bogotá FC","codigo":8607},{"nombre":"Unión Magdalena","codigo":10092},{"nombre":"Atlético FC","codigo":30362},{"nombre":"Orsomarso SC","codigo":30822},{"nombre":"Real Cundinamarca","codigo":99969},{"nombre":"Tigres FC","codigo":22699},{"nombre":"Barranquilla FC","codigo":10091},{"nombre":"Leones FC","codigo":32485},{"nombre":"Club Boca Juniors de Cali","codigo":37949},{"nombre":"Real Santander","codigo":17484}]},"Liga Pro Serie B":{"pais":"Ecuador","equipos_total":12,"clubes":[{"nombre":"AD Nueve de Octubre","codigo":19101},{"nombre":"Vinotinto FC","codigo":25958},{"nombre":"Independiente Juniors","codigo":62074},{"nombre":"San Antonio FC","codigo":47242},{"nombre":"Atlético Fútbol Club","codigo":120275},{"nombre":"Cumbayá FC","codigo":41301},{"nombre":"Cuenca Juniors","codigo":119920},{"nombre":"Gualaceo SC","codigo":25698},{"nombre":"CD El Nacional","codigo":1143},{"nombre":"Deportivo Santo Domingo de los Tsachilas","codigo":70468},{"nombre":"LDU de Portoviejo","codigo":19310},{"nombre":"22 de Julio FC","codigo":120935}]},"Segunda División - Fase Regular":{"pais":"Uruguay","equipos_total":14,"clubes":[{"nombre":"Club Plaza Colonia","codigo":6044},{"nombre":"CA Rentistas","codigo":10632},{"nombre":"CA River Plate Montevideo","codigo":2419},{"nombre":"CA Atenas de San Carlos","codigo":18122},{"nombre":"CA Fénix","codigo":3829},{"nombre":"La Luz FC","codigo":20762},{"nombre":"CS Cerrito","codigo":18077},{"nombre":"Colón FC de Uruguay","codigo":18124},{"nombre":"Tacuarembó FC","codigo":17494},{"nombre":"Uruguay Montevideo FC","codigo":41308},{"nombre":"Club Oriental","codigo":45741},{"nombre":"Miramar Misiones","codigo":7477},{"nombre":"Huracán FC","codigo":34318},{"nombre":"Paysandú FC","codigo":92668}]},"Liga 1 Apertura":{"pais":"Perú","equipos_total":18,"clubes":[{"nombre":"Universitario de Deportes","codigo":6593},{"nombre":"Club Alianza Lima","codigo":184},{"nombre":"Club Sporting Cristal","codigo":1450},{"nombre":"FBC Melgar","codigo":2734},{"nombre":"Cusco FC","codigo":28999},{"nombre":"Sport Boys Association","codigo":2730},{"nombre":"Deportivo Garcilaso","codigo":76945},{"nombre":"Club Cienciano","codigo":2729},{"nombre":"Comerciantes Unidos","codigo":47107},{"nombre":"Asociación Deportiva Tarma","codigo":35588},{"nombre":"Sport Huancayo","codigo":21655},{"nombre":"Alianza Atlético Sullana","codigo":17479},{"nombre":"Club Atlético Grau","codigo":27861},{"nombre":"Club Juan Pablo II College","codigo":99517},{"nombre":"CD Los Chankas","codigo":54478},{"nombre":"Universidad Técnica de Cajamarca","codigo":21170},{"nombre":"FC Cajamarca","codigo":120792},{"nombre":"Deportivo Moquegua","codigo":114625}]},"Liga 3":{"pais":"Perú","equipos_total":37,"clubes":[{"nombre":"Deportivo Coopsol","codigo":17965},{"nombre":"Club Sporting Cristal II","codigo":21393},{"nombre":"Club Juventud Huracán","codigo":133372},{"nombre":"Club Alianza Lima II","codigo":21379},{"nombre":"Universitario de Deportes II","codigo":21378},{"nombre":"Asociación Deportiva Tahuishco","codigo":86095},{"nombre":"Asociación Deportiva Tarma II","codigo":100542},{"nombre":"Alto Rendimiento JVM","codigo":127847},{"nombre":"Amazon Callao","codigo":124047},{"nombre":"CD ANBA","codigo":132616},{"nombre":"ASA FC de Chancay","codigo":129008},{"nombre":"Social Pariacoto","codigo":120821},{"nombre":"Club Cienciano II","codigo":21383},{"nombre":"Club Construcción Civil","codigo":128795},{"nombre":"Cultural Volante","codigo":123542},{"nombre":"Defensor Arguedas","codigo":123838},{"nombre":"Deportivo Lute","codigo":109092},{"nombre":"Deportivo Municipal","codigo":17974},{"nombre":"Deportivo Municipal de Pangoa","codigo":66429},{"nombre":"Deportivo Ucrania","codigo":124050},{"nombre":"Ecosem Pasco","codigo":102186},{"nombre":"FBC Melgar II","codigo":21390},{"nombre":"FC Carlos Stein","codigo":78642},{"nombre":"Real San Antonio","codigo":123421},{"nombre":"Club Juan Aurich","codigo":4576},{"nombre":"Juventud Alfa Pisac FC","codigo":124696},{"nombre":"Juventud Cautivo","codigo":93212},{"nombre":"Juventus Huamachuco","codigo":120932},{"nombre":"Nacional FBC Mollendo","codigo":93355},{"nombre":"Nuevo San Cristobal","codigo":124051},{"nombre":"Pacífico FC","codigo":37579},{"nombre":"Patriotas FC Tacna","codigo":124046},{"nombre":"Sport Boys Association II","codigo":21392},{"nombre":"Unión Deportivo Ascensión","codigo":86743},{"nombre":"Unión Huaral","codigo":17475},{"nombre":"Unión Santo Domingo","codigo":123667},{"nombre":"Universidad César Vallejo II","codigo":21396}]},"Liga FUTVE 2":{"pais":"Venezuela","equipos_total":16,"clubes":[{"nombre":"Marítimo La Guaira","codigo":105806},{"nombre":"Deportivo Miranda FC","codigo":29750},{"nombre":"Barquisimeto Sport Club","codigo":91775},{"nombre":"Trujillanos FC","codigo":17392},{"nombre":"Mineros de Guayana","codigo":17194},{"nombre":"Dynamo Puerto FC","codigo":73062},{"nombre":"Aragua FC","codigo":8331},{"nombre":"Titanes FC","codigo":52490},{"nombre":"Academia Puerto Cabello II","codigo":117712},{"nombre":"Bolívar SC","codigo":93377},{"nombre":"Angostura FC","codigo":28292},{"nombre":"Monagas SC B","codigo":76267},{"nombre":"Real Frontera SC","codigo":52439},{"nombre":"El Vigía FC","codigo":22904},{"nombre":"Héroes de Falcón","codigo":100079},{"nombre":"Ureña SC","codigo":30500}]},"Canadian Premier League":{"pais":"Canadá","equipos_total":8,"clubes":[{"nombre":"Atlético Ottawa","codigo":67833},{"nombre":"Inter Toronto FC","codigo":67280},{"nombre":"Pacific FC","codigo":70052},{"nombre":"Vancouver FC","codigo":104654},{"nombre":"HFX Wanderers FC","codigo":66818},{"nombre":"Cavalry FC","codigo":69756},{"nombre":"Forge FC","codigo":68232},{"nombre":"FC Supra du Québec","codigo":67989}]},"Liga Primera de Nicaragua Clausura":{"pais":"Nicaragua","equipos_total":10,"clubes":[{"nombre":"Real Estelí FC","codigo":15758},{"nombre":"Diriangén FC","codigo":15748},{"nombre":"Managua FC","codigo":31507},{"nombre":"Club Sport Sébaco","codigo":91380},{"nombre":"Matagalpa FC","codigo":101189},{"nombre":"Deportivo Walter Ferretti","codigo":15747},{"nombre":"ART Municipal Jalapa","codigo":45185},{"nombre":"Rancho Santana FC","codigo":120704},{"nombre":"UNAN Managua","codigo":47240},{"nombre":"Real Madriz FC","codigo":42321}]},"Liga Dominicana de Fútbol":{"pais":"República Dominicana","equipos_total":10,"clubes":[{"nombre":"Cibao FC","codigo":47345},{"nombre":"Moca FC","codigo":43571},{"nombre":"Salcedo FC","codigo":128290},{"nombre":"Atlético Vega Real","codigo":48552},{"nombre":"Atlético Pantoja","codigo":34756},{"nombre":"Jarabacoa FC","codigo":18282},{"nombre":"Universidad O&M FC","codigo":47347},{"nombre":"Atlético San Cristóbal","codigo":18313},{"nombre":"Atlántico FC","codigo":48918},{"nombre":"Delfines del Este FC","codigo":52854}]},"MLS Next Pro":{"pais":"Estados Unidos","equipos_total":28,"clubes":[{"nombre":"Philadelphia Union II","codigo":51762},{"nombre":"Crown Legacy FC","codigo":101282},{"nombre":"Connecticut United FC","codigo":136989},{"nombre":"San Jose Earthquakes II","codigo":95338},{"nombre":"Tacoma Defiance","codigo":46720},{"nombre":"Chicago Fire FC II","codigo":95331},{"nombre":"Columbus Crew 2","codigo":95333},{"nombre":"New England Revolution II","codigo":77984},{"nombre":"New York Red Bulls II","codigo":39815},{"nombre":"Chattanooga FC","codigo":33293},{"nombre":"Portland Timbers 2","codigo":46719},{"nombre":"Austin FC II","codigo":104630},{"nombre":"Los Angeles FC 2","codigo":102400},{"nombre":"Ventura County FC","codigo":33285},{"nombre":"Atlanta United 2","codigo":64328},{"nombre":"Minnesota United FC 2","codigo":95337},{"nombre":"Whitecaps FC 2","codigo":46721},{"nombre":"FC Cincinnati 2","codigo":95332},{"nombre":"North Texas SC","codigo":71021},{"nombre":"Sporting Kansas City II","codigo":51604},{"nombre":"New York City FC II","codigo":95334},{"nombre":"Toronto FC II","codigo":46823},{"nombre":"Carolina Core FC","codigo":103657},{"nombre":"Huntsville City FC","codigo":103649},{"nombre":"Inter Miami CF II","codigo":78259},{"nombre":"Orlando City B","codigo":51773},{"nombre":"Colorado Rapids 2","codigo":95335},{"nombre":"Houston Dynamo FC 2","codigo":95336}]},"Primera División Clausura":{"pais":"Costa Rica","equipos_total":22,"clubes":[{"nombre":"LD Alajuelense","codigo":6478},{"nombre":"Deportivo Saprissa","codigo":4720},{"nombre":"CS Cartaginés","codigo":18577},{"nombre":"CS Herediano","codigo":2677},{"nombre":"Sporting FC","codigo":54649},{"nombre":"AD Municipal Liberia","codigo":18579},{"nombre":"Municipal Pérez Zeledón","codigo":8601},{"nombre":"Puntarenas FC","codigo":9807},{"nombre":"AD San Carlos","codigo":18659},{"nombre":"Guadalupe FC","codigo":18574},{"nombre":"Club Olimpia","codigo":629},{"nombre":"Club Cerro Porteño","codigo":1214},{"nombre":"Club Libertad Asunción","codigo":9875},{"nombre":"Club Guaraní","codigo":11855},{"nombre":"Club Nacional Asunción","codigo":7098},{"nombre":"Club Sportivo Trinidense","codigo":17427},{"nombre":"Sportivo Luqueño","codigo":7656},{"nombre":"Sportivo Ameliano","codigo":95571},{"nombre":"Club Sportivo 2 de Mayo","codigo":17484},{"nombre":"Recoleta FC","codigo":14545},{"nombre":"Club Rubio Ñú (Asunción)","codigo":23170},{"nombre":"Club Sportivo San Lorenzo","codigo":19124}]},"Liga Nacional Apertura":{"pais":"Guatemala","equipos_total":23,"clubes":[{"nombre":"CSD Municipal","codigo":13047},{"nombre":"Antigua GFC","codigo":19006},{"nombre":"CSD Xelajú MC","codigo":18578},{"nombre":"Comunicaciones FC","codigo":9709},{"nombre":"CD Malacateco","codigo":19066},{"nombre":"Deportivo Mixco","codigo":35101},{"nombre":"Cobán Imperial","codigo":6800},{"nombre":"Deportivo Achuapa","codigo":38141},{"nombre":"Deportivo Guastatoya","codigo":45174},{"nombre":"Aurora FC","codigo":19008},{"nombre":"Deportivo Marquense","codigo":16543},{"nombre":"Atlético de Mictlán","codigo":19010},{"nombre":"CD Olimpia","codigo":2720},{"nombre":"Real CD España","codigo":13293},{"nombre":"CD Motagua Tegucigalpa","codigo":9708},{"nombre":"CD Marathón","codigo":4523},{"nombre":"Olancho FC","codigo":55746},{"nombre":"Platense FC","codigo":11090},{"nombre":"Juticalpa FC","codigo":46640},{"nombre":"Lobos de la UPNFM","codigo":46019},{"nombre":"CD Victoria La Ceiba","codigo":2445},{"nombre":"Génesis / Policía Nacional FC","codigo":122142},{"nombre":"CD Choloma","codigo":37704}]},"Liga Nacional Clausura":{"pais":"Guatemala","equipos_total":23,"clubes":[{"nombre":"CSD Municipal","codigo":13047},{"nombre":"Antigua GFC","codigo":19006},{"nombre":"CSD Xelajú MC","codigo":18578},{"nombre":"Comunicaciones FC","codigo":9709},{"nombre":"CD Malacateco","codigo":19066},{"nombre":"Deportivo Mixco","codigo":35101},{"nombre":"Cobán Imperial","codigo":6800},{"nombre":"Deportivo Achuapa","codigo":38141},{"nombre":"Deportivo Guastatoya","codigo":45174},{"nombre":"Aurora FC","codigo":19008},{"nombre":"Deportivo Marquense","codigo":16543},{"nombre":"Atlético de Mictlán","codigo":19010},{"nombre":"CD Olimpia","codigo":2720},{"nombre":"Real CD España","codigo":13293},{"nombre":"CD Motagua Tegucigalpa","codigo":9708},{"nombre":"CD Marathón","codigo":4523},{"nombre":"Olancho FC","codigo":55746},{"nombre":"Platense FC","codigo":11090},{"nombre":"Juticalpa FC","codigo":46640},{"nombre":"Lobos de la UPNFM","codigo":46019},{"nombre":"CD Victoria La Ceiba","codigo":2445},{"nombre":"Génesis / Policía Nacional FC","codigo":122142},{"nombre":"CD Choloma","codigo":37704}]},"Liga MX Apertura":{"pais":"México","equipos_total":18,"clubes":[{"nombre":"CF América","codigo":3631},{"nombre":"Deportivo Toluca FC","codigo":1804},{"nombre":"CD Cruz Azul","codigo":3711},{"nombre":"Tigres UANL","codigo":7055},{"nombre":"CD Guadalajara","codigo":6711},{"nombre":"CF Monterrey","codigo":2407},{"nombre":"Pumas UNAM","codigo":7633},{"nombre":"CF Pachuca","codigo":4035},{"nombre":"Club Tijuana","codigo":13353},{"nombre":"Club León FC","codigo":4941},{"nombre":"FC Juárez","codigo":49283},{"nombre":"Club Necaxa","codigo":1146},{"nombre":"Atlético de San Luis","codigo":40188},{"nombre":"Santos Laguna","codigo":1403},{"nombre":"Atlas Guadalajara","codigo":8590},{"nombre":"Querétaro FC","codigo":4961},{"nombre":"Club Puebla","codigo":5662},{"nombre":"Mazatlán FC","codigo":82696}]},"Liga de Expansión MX Apertura":{"pais":"México","equipos_total":15,"clubes":[{"nombre":"Tampico Madero","codigo":12728},{"nombre":"CF Atlante","codigo":6709},{"nombre":"CD Leones Negros de la UdeG","codigo":23505},{"nombre":"Venados FC Yucatán","codigo":18662},{"nombre":"Club Atlético Morelia","codigo":5623},{"nombre":"Atlético La Paz","codigo":100124},{"nombre":"CD Irapuato","codigo":4488},{"nombre":"Correcaminos de la UAT","codigo":13354},{"nombre":"CD Tapatío","codigo":13362},{"nombre":"Mineros de Zacatecas","codigo":44772},{"nombre":"Dorados de Sinaloa","codigo":10091},{"nombre":"Tepatitlán FC","codigo":64345},{"nombre":"Tlaxcala FC","codigo":42781},{"nombre":"Cancún FC","codigo":83082},{"nombre":"Alebrijes de Oaxaca","codigo":30111}]},"Liga Primera de Nicaragua Apertura":{"pais":"Nicaragua","equipos_total":10,"clubes":[{"nombre":"Real Estelí FC","codigo":15758},{"nombre":"Diriangén FC","codigo":15748},{"nombre":"Managua FC","codigo":31507},{"nombre":"Club Sport Sébaco","codigo":91380},{"nombre":"Matagalpa FC","codigo":101189},{"nombre":"Deportivo Walter Ferretti","codigo":15747},{"nombre":"ART Municipal Jalapa","codigo":45185},{"nombre":"Rancho Santana FC","codigo":120704},{"nombre":"UNAN Managua","codigo":47240},{"nombre":"Real Madriz FC","codigo":42321}]},"Liga Panameña de Fútbol Apertura":{"pais":"Panamá","equipos_total":12,"clubes":[{"nombre":"CD Plaza Amador","codigo":20960},{"nombre":"Sporting San Miguelito","codigo":1708},{"nombre":"CD Universitario","codigo":18952},{"nombre":"Tauro FC","codigo":12371},{"nombre":"San Francisco FC","codigo":11698},{"nombre":"Alianza FC Panama","codigo":18820},{"nombre":"CD Árabe Unido","codigo":17522},{"nombre":"Veraguas United FC","codigo":48217},{"nombre":"CA Independiente","codigo":28218},{"nombre":"UMECIT FC","codigo":89061},{"nombre":"Herrera FC","codigo":55384},{"nombre":"Unión Coclé FC","codigo":91052}]}};
-
-// ===================== STATE =====================
+ 
 let selectedClub = null;
-let inputValues = {};
-
-// ===================== INIT =====================
+let lastScores = {};
+ 
+// INIT
 function init() {
-  const compFilter = document.getElementById('compFilter');
-  const comps = Object.keys(CLUBS_DATA).sort();
-  comps.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.textContent = c + ' (' + CLUBS_DATA[c].pais + ')';
-    compFilter.appendChild(opt);
+  const cf = document.getElementById('compFilter');
+  Object.keys(CLUBS_DATA).sort().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c + ' (' + CLUBS_DATA[c].pais + ')';
+    cf.appendChild(o);
   });
-  renderClubList('', '');
-  buildInputGrid();
+  renderList('','');
+  buildInputs();
 }
-
-function renderClubList(search, comp) {
+ 
+function renderList(search, comp) {
   const list = document.getElementById('clubList');
-  const count = document.getElementById('clubCount');
+  const ct = document.getElementById('clubCount');
   list.innerHTML = '';
-  let total = 0;
-  const searchLower = search.toLowerCase();
-
-  Object.entries(CLUBS_DATA).forEach(([compName, compData]) => {
-    if (comp && comp !== compName) return;
-    compData.clubes.forEach(club => {
-      if (search && !club.nombre.toLowerCase().includes(searchLower)) return;
-      total++;
+  const sl = search.toLowerCase();
+  let n = 0;
+  Object.entries(CLUBS_DATA).forEach(([cn, cd]) => {
+    if (comp && comp !== cn) return;
+    cd.clubes.forEach(club => {
+      if (search && !club.nombre.toLowerCase().includes(sl)) return;
+      n++;
       const div = document.createElement('div');
       div.className = 'club-item' + (selectedClub && selectedClub.codigo === club.codigo ? ' active' : '');
-      div.innerHTML = `<span class="ci-code">#${club.codigo}</span>
-        <span class="ci-name">${club.nombre}</span>
-        <span class="ci-comp">${compName}</span>`;
-      div.onclick = () => selectClub(club, compName, compData);
+      div.innerHTML = `<span class="ci-code">#${club.codigo}</span><span class="ci-name">${club.nombre}</span><span class="ci-flag">${cn}</span>`;
+      div.onclick = (e) => selectClub(club, cn, cd, div);
       list.appendChild(div);
     });
   });
-  count.textContent = total.toLocaleString() + ' clubes';
+  ct.textContent = n.toLocaleString('es-AR') + ' clubes';
 }
-
+ 
 function filterClubs() {
-  const search = document.getElementById('searchInput').value;
-  const comp = document.getElementById('compFilter').value;
-  renderClubList(search, comp);
+  renderList(document.getElementById('searchInput').value, document.getElementById('compFilter').value);
 }
-
-function selectClub(club, compName, compData) {
+ 
+function selectClub(club, compName, compData, el) {
   selectedClub = { ...club, competicion: compName, pais: compData.pais, equipos_liga: compData.equipos_total };
-  inputValues = {};
-  document.querySelectorAll('.club-item').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  document.querySelectorAll('.club-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+ 
   document.getElementById('welcomeMsg').classList.add('hidden');
   const cc = document.getElementById('clubContent');
   cc.classList.remove('hidden');
-
-  // Header
-  renderClubHeader();
-  // Reset outputs
-  ['probSection','transferSection','matrizSection','metricsSection'].forEach(id => document.getElementById(id).classList.add('hidden'));
-  document.getElementById('varSection').style.display = 'none';
-
-  // Reset score
-  document.getElementById('scoreNum').textContent = '—';
-  document.getElementById('scoreLabel').textContent = 'INGRESE DATOS';
-  document.getElementById('scoreGrade').textContent = '—';
-  document.getElementById('scoreGrade').className = 'score-grade';
-  document.getElementById('scoreArc').style.strokeDashoffset = '351.86';
-  document.getElementById('scoreDetails').innerHTML = '';
-
-  // Pre-fill equipos_liga
+ 
+  renderHero();
+  resetResults();
+ 
   setTimeout(() => {
     const inp = document.getElementById('inp_cant_equipos');
-    if (inp) { inp.value = selectedClub.equipos_liga; inp.classList.add('has-value'); }
+    if (inp) { inp.value = selectedClub.equipos_liga; inp.classList.add('filled'); }
   }, 50);
 }
-
-function renderClubHeader() {
+ 
+function renderHero() {
   const c = selectedClub;
-  const initials = c.nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
-  document.getElementById('clubHeader').innerHTML = `
-    <div class="club-badge">${initials}</div>
-    <div class="club-meta">
-      <h2>${c.nombre}</h2>
-      <div class="badges">
-        <span class="badge accent">${c.competicion}</span>
-        <span class="badge">${c.pais}</span>
-        <span class="badge">Código: ${c.codigo}</span>
-        <span class="badge">${c.equipos_liga} equipos en liga</span>
+  const initials = c.nombre.split(' ').map(w=>w[0]).filter(ch=>/[A-Z]/.test(ch)).slice(0,2).join('') || c.nombre.substring(0,2).toUpperCase();
+  document.getElementById('clubHero').innerHTML = `
+    <div class="club-hero-geo"></div>
+    <div class="club-hero-geo2"></div>
+    <div class="club-hero-inner">
+      <div class="club-monogram">${initials}</div>
+      <div class="club-hero-text">
+        <h2>${c.nombre}</h2>
+        <div class="hero-tags">
+          <span class="hero-tag green">${c.competicion}</span>
+          <span class="hero-tag ivory">${c.pais}</span>
+          <span class="hero-tag ivory">${c.equipos_liga} equipos en liga</span>
+          <span class="hero-tag ivory">ID: ${c.codigo}</span>
+        </div>
       </div>
-    </div>
-    <div style="margin-left:auto;">
-      <a href="https://www.transfermarkt.es/x/startseite/verein/${c.codigo}" target="_blank"
-         style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;font-size:12px;text-decoration:none;font-family:Space Mono;transition:.2s"
-         onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-         ↗ Transfermarkt
+      <a class="hero-link" href="https://www.transfermarkt.es/x/startseite/verein/${c.codigo}" target="_blank">
+        Transfermarkt ↗
       </a>
     </div>
   `;
 }
-
-function buildInputGrid() {
+ 
+function resetResults() {
+  ['probBlock','varBlock','transferBlock','matrizBlock','metricsBlock'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('scoreNum').textContent = '—';
+  document.getElementById('scoreLabel').textContent = 'INGRESE DATOS';
+  document.getElementById('scoreGrade').textContent = '—';
+  document.getElementById('scoreGrade').className = 'score-grade-badge mid';
+  document.getElementById('scoreArc').style.strokeDashoffset = '339.29';
+  document.getElementById('scoreDetails').innerHTML = '';
+}
+ 
+function buildInputs() {
   const fields = [
-    { id: 'cant_jugadores', label: 'Cantidad de Jugadores', placeholder: 'ej: 25', group: 'PLANTILLA' },
-    { id: 'vm_club', label: 'Valor Mercado Club (M€)', placeholder: 'ej: 150.5', group: 'PLANTILLA' },
-    { id: 'edad_prom_club', label: 'Edad Promedio Club', placeholder: 'ej: 26.4', group: 'PLANTILLA' },
-    { id: 'edad_prom_liga', label: 'Edad Promedio Liga', placeholder: 'ej: 25.8', group: 'PLANTILLA' },
-    { id: 'vm_liga', label: 'Valor Mercado Liga (M€)', placeholder: 'ej: 2500', group: 'PLANTILLA' },
-    { id: 'debutantes', label: 'Debutantes Últ. 3 Temporadas', placeholder: 'ej: 5', group: 'PLANTILLA' },
-    { id: 'lesionados_club', label: 'Jugadores Lesionados Club', placeholder: 'ej: 3', group: 'ESTADO' },
-    { id: 'lesionados_liga', label: 'Promedio Lesionados Liga', placeholder: 'ej: 4', group: 'ESTADO' },
-    { id: 'contratos_club', label: 'Contratos a Vencer Club', placeholder: 'ej: 6', group: 'ESTADO' },
-    { id: 'contratos_liga', label: 'Promedio Contratos Vencer Liga', placeholder: 'ej: 5', group: 'ESTADO' },
-    { id: 'cant_equipos', label: 'Cantidad Equipos en Liga', placeholder: 'ej: 20', group: 'ESTADO' },
-    { id: 'altas_s0', label: 'Altas Season (actual)', placeholder: 'ej: 8', group: 'TRANSFERENCIAS' },
-    { id: 'bajas_s0', label: 'Bajas Season (actual)', placeholder: 'ej: 7', group: 'TRANSFERENCIAS' },
-    { id: 'altas_s1', label: 'Altas Season -1', placeholder: 'ej: 6', group: 'TRANSFERENCIAS' },
-    { id: 'bajas_s1', label: 'Bajas Season -1', placeholder: 'ej: 5', group: 'TRANSFERENCIAS' },
-    { id: 'altas_s2', label: 'Altas Season -2', placeholder: 'ej: 7', group: 'TRANSFERENCIAS' },
-    { id: 'bajas_s2', label: 'Bajas Season -2', placeholder: 'ej: 8', group: 'TRANSFERENCIAS' },
-    { id: 'altas_s3', label: 'Altas Season -3', placeholder: 'ej: 5', group: 'TRANSFERENCIAS' },
-    { id: 'bajas_s3', label: 'Bajas Season -3', placeholder: 'ej: 6', group: 'TRANSFERENCIAS' },
-    { id: 'altas_s4', label: 'Altas Season -4', placeholder: 'ej: 4', group: 'TRANSFERENCIAS' },
-    { id: 'bajas_s4', label: 'Bajas Season -4', placeholder: 'ej: 5', group: 'TRANSFERENCIAS' },
+    {id:'cant_jugadores',label:'Cantidad de Jugadores',ph:'ej: 25',g:'PLANTILLA'},
+    {id:'vm_club',label:'Valor Mercado Club (M€)',ph:'ej: 150',g:'PLANTILLA'},
+    {id:'edad_prom_club',label:'Edad Promedio Club',ph:'ej: 26.4',g:'PLANTILLA'},
+    {id:'edad_prom_liga',label:'Edad Promedio Liga',ph:'ej: 25.8',g:'PLANTILLA'},
+    {id:'vm_liga',label:'Valor Mercado Liga (M€)',ph:'ej: 2500',g:'PLANTILLA'},
+    {id:'debutantes',label:'Debutantes Últ. 3 Temporadas',ph:'ej: 5',g:'PLANTILLA'},
+    {id:'lesionados_club',label:'Lesionados Club',ph:'ej: 3',g:'ESTADO'},
+    {id:'lesionados_liga',label:'Promedio Lesionados Liga',ph:'ej: 4',g:'ESTADO'},
+    {id:'contratos_club',label:'Contratos a Vencer Club',ph:'ej: 6',g:'ESTADO'},
+    {id:'contratos_liga',label:'Prom. Contratos Vencer Liga',ph:'ej: 5',g:'ESTADO'},
+    {id:'cant_equipos',label:'Equipos en Liga',ph:'ej: 20',g:'ESTADO'},
+    {id:'altas_s0',label:'Altas Season (actual)',ph:'ej: 8',g:'TRANSFERENCIAS'},
+    {id:'bajas_s0',label:'Bajas Season (actual)',ph:'ej: 7',g:'TRANSFERENCIAS'},
+    {id:'altas_s1',label:'Altas Season -1',ph:'ej: 6',g:'TRANSFERENCIAS'},
+    {id:'bajas_s1',label:'Bajas Season -1',ph:'ej: 5',g:'TRANSFERENCIAS'},
+    {id:'altas_s2',label:'Altas Season -2',ph:'ej: 7',g:'TRANSFERENCIAS'},
+    {id:'bajas_s2',label:'Bajas Season -2',ph:'ej: 8',g:'TRANSFERENCIAS'},
+    {id:'altas_s3',label:'Altas Season -3',ph:'ej: 5',g:'TRANSFERENCIAS'},
+    {id:'bajas_s3',label:'Bajas Season -3',ph:'ej: 6',g:'TRANSFERENCIAS'},
+    {id:'altas_s4',label:'Altas Season -4',ph:'ej: 4',g:'TRANSFERENCIAS'},
+    {id:'bajas_s4',label:'Bajas Season -4',ph:'ej: 5',g:'TRANSFERENCIAS'},
   ];
-
   const grid = document.getElementById('inputGrid');
   grid.innerHTML = '';
-  let lastGroup = '';
-
+  let lastG = '';
   fields.forEach(f => {
-    if (f.group !== lastGroup) {
-      const div = document.createElement('div');
-      div.className = 'input-divider';
-      div.textContent = f.group;
-      grid.appendChild(div);
-      lastGroup = f.group;
+    if (f.g !== lastG) {
+      const d = document.createElement('div');
+      d.className = 'input-group-title'; d.textContent = f.g;
+      grid.appendChild(d); lastG = f.g;
     }
-    const group = document.createElement('div');
-    group.className = 'input-group';
-    group.innerHTML = `
-      <label>${f.label}</label>
-      <input type="number" id="inp_${f.id}" placeholder="${f.placeholder}" 
-        oninput="this.classList.toggle('has-value', this.value !== '')">
-    `;
-    grid.appendChild(group);
+    const w = document.createElement('div');
+    w.className = 'inp-wrap';
+    w.innerHTML = `<label>${f.label}</label>
+      <input type="number" id="inp_${f.id}" placeholder="${f.ph}"
+        oninput="this.classList.toggle('filled',this.value!=='')">`;
+    grid.appendChild(w);
   });
 }
-
-function getVal(id) {
-  const el = document.getElementById('inp_' + id);
-  return el && el.value !== '' ? parseFloat(el.value) : null;
+ 
+function gv(id) {
+  const e = document.getElementById('inp_'+id);
+  return e && e.value !== '' ? parseFloat(e.value) : null;
 }
-
+ 
 function calcularRiesgo() {
   if (!selectedClub) return;
-
-  // Collect inputs
-  const v = {
-    cant_jugadores: getVal('cant_jugadores'),
-    vm_club: getVal('vm_club'),
-    edad_prom_club: getVal('edad_prom_club'),
-    edad_prom_liga: getVal('edad_prom_liga'),
-    vm_liga: getVal('vm_liga'),
-    debutantes: getVal('debutantes'),
-    lesionados_club: getVal('lesionados_club'),
-    lesionados_liga: getVal('lesionados_liga'),
-    contratos_club: getVal('contratos_club'),
-    contratos_liga: getVal('contratos_liga'),
-    cant_equipos: getVal('cant_equipos') || selectedClub.equipos_liga,
-    altas_s0: getVal('altas_s0'), bajas_s0: getVal('bajas_s0'),
-    altas_s1: getVal('altas_s1'), bajas_s1: getVal('bajas_s1'),
-    altas_s2: getVal('altas_s2'), bajas_s2: getVal('bajas_s2'),
-    altas_s3: getVal('altas_s3'), bajas_s3: getVal('bajas_s3'),
-    altas_s4: getVal('altas_s4'), bajas_s4: getVal('bajas_s4'),
-  };
-
-  const scores = calcScores(v);
-  renderScore(scores, v);
-  renderProbabilidades(scores, v);
-  renderVaR(scores, v);
-  renderTransferencias(v);
-  renderMatriz(scores, v);
-  renderMetricas(v);
-
-  // Show sections
-  ['probSection','transferSection','matrizSection','metricsSection'].forEach(id => document.getElementById(id).classList.remove('hidden'));
-  document.getElementById('varSection').style.display = '';
+  const v = {};
+  ['cant_jugadores','vm_club','edad_prom_club','edad_prom_liga','vm_liga','debutantes',
+   'lesionados_club','lesionados_liga','contratos_club','contratos_liga','cant_equipos',
+   'altas_s0','bajas_s0','altas_s1','bajas_s1','altas_s2','bajas_s2',
+   'altas_s3','bajas_s3','altas_s4','bajas_s4'].forEach(id => v[id] = gv(id));
+  v.cant_equipos = v.cant_equipos || selectedClub.equipos_liga;
+ 
+  lastScores = calcScores(v);
+  renderScore(lastScores);
+  renderProb(lastScores, v);
+  renderVaR(lastScores, v);
+  renderTransfer(v);
+  renderMatriz(lastScores, v);
+  renderMetrics(lastScores, v);
+ 
+  ['probBlock','varBlock','transferBlock','matrizBlock','metricsBlock'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
 }
-
-// ===================== SCORING ENGINE =====================
+ 
+// SCORING
 function calcScores(v) {
-  const totalMax = 580;
-  let scores = {};
-
-  // 1. Valor de Mercado Relativo (max 100)
+  const s = {};
+  const n = v.cant_jugadores || 25;
+  const eq = v.cant_equipos || 20;
+ 
   if (v.vm_club !== null && v.vm_liga !== null && v.vm_liga > 0) {
-    const ratio = v.vm_club / (v.vm_liga / (v.cant_equipos || 20));
-    if (ratio >= 1.5) scores.vm = 100;
-    else if (ratio >= 1.2) scores.vm = 80;
-    else if (ratio >= 0.8) scores.vm = 60;
-    else if (ratio >= 0.5) scores.vm = 40;
-    else if (ratio >= 0.25) scores.vm = 20;
-    else scores.vm = 5;
-  } else scores.vm = null;
-
-  // 2. Rotación de plantilla (estabilidad) max 80
-  const rotaciones = ['s0','s1','s2','s3','s4'].map(s => {
-    const a = v['altas_' + s] || 0;
-    const b = v['bajas_' + s] || 0;
-    const n = v.cant_jugadores || 25;
-    return (a + b) / (2 * n);
-  }).filter(x => x >= 0);
-  if (rotaciones.length > 0) {
-    const avgRot = rotaciones.reduce((a,b) => a+b, 0) / rotaciones.length;
-    const tendencia = rotaciones.length > 1 ? rotaciones[0] - rotaciones[rotaciones.length-1] : 0;
-    let rotScore = 0;
-    if (avgRot <= 0.1) rotScore = 80;
-    else if (avgRot <= 0.2) rotScore = 65;
-    else if (avgRot <= 0.3) rotScore = 50;
-    else if (avgRot <= 0.4) rotScore = 35;
-    else if (avgRot <= 0.5) rotScore = 20;
-    else rotScore = 5;
-    // Penalizar si tendencia negativa (rotación creciente)
-    if (tendencia > 0.1) rotScore = Math.max(0, rotScore - 15);
-    scores.rotacion = rotScore;
-    scores.avgRot = avgRot;
-    scores.tendenciaRot = tendencia;
-  } else scores.rotacion = null;
-
-  // 3. Edad promedio (máx 70)
+    const r = v.vm_club / (v.vm_liga / eq);
+    s.vm = r>=1.5?100:r>=1.2?80:r>=0.8?60:r>=0.5?40:r>=0.25?20:5;
+  } else s.vm = null;
+ 
+  const rots = ['s0','s1','s2','s3','s4'].map(x=>{
+    const a=v['altas_'+x]||0, b=v['bajas_'+x]||0;
+    return (a+b)/(2*n);
+  });
+  const ar = rots.reduce((a,b)=>a+b,0)/5;
+  const tend = rots[0]-rots[4];
+  let rs = ar<=.1?80:ar<=.2?65:ar<=.3?50:ar<=.4?35:ar<=.5?20:5;
+  if (tend>0.1) rs=Math.max(0,rs-15);
+  s.rotacion = rs; s.avgRot = ar; s.tendencia = tend;
+ 
   if (v.edad_prom_club !== null) {
-    const edad = v.edad_prom_club;
-    const diff = v.edad_prom_liga ? edad - v.edad_prom_liga : 0;
-    if (edad >= 24 && edad <= 27) scores.edad = 70;
-    else if (edad >= 23 && edad < 28) scores.edad = 55;
-    else if (edad >= 22 && edad < 29) scores.edad = 40;
-    else if (edad >= 21 && edad < 30) scores.edad = 25;
-    else scores.edad = 10;
-    if (diff > 2) scores.edad = Math.max(0, scores.edad - 15);
-    if (diff < -2) scores.edad = Math.max(0, scores.edad - 10);
-  } else scores.edad = null;
-
-  // 4. Lesionados (max 80)
+    const e=v.edad_prom_club, d=v.edad_prom_liga?e-v.edad_prom_liga:0;
+    s.edad = e>=24&&e<=27?70:e>=23&&e<28?55:e>=22&&e<29?40:e>=21&&e<30?25:10;
+    if (d>2) s.edad=Math.max(0,s.edad-15);
+    if (d<-2) s.edad=Math.max(0,s.edad-10);
+  } else s.edad=null;
+ 
   if (v.lesionados_club !== null) {
-    const n = v.cant_jugadores || 25;
-    const pctLes = v.lesionados_club / n;
-    const refLiga = v.lesionados_liga !== null && v.cant_equipos ? v.lesionados_liga / (v.cant_equipos || 20) : null;
-    if (pctLes <= 0.04) scores.lesiones = 80;
-    else if (pctLes <= 0.08) scores.lesiones = 65;
-    else if (pctLes <= 0.12) scores.lesiones = 50;
-    else if (pctLes <= 0.20) scores.lesiones = 30;
-    else scores.lesiones = 10;
-  } else scores.lesiones = null;
-
-  // 5. Contratos a vencer (max 70)
+    const p=v.lesionados_club/n;
+    s.lesiones = p<=.04?80:p<=.08?65:p<=.12?50:p<=.20?30:10;
+  } else s.lesiones=null;
+ 
   if (v.contratos_club !== null) {
-    const n = v.cant_jugadores || 25;
-    const pctContr = v.contratos_club / n;
-    if (pctContr <= 0.08) scores.contratos = 70;
-    else if (pctContr <= 0.16) scores.contratos = 55;
-    else if (pctContr <= 0.25) scores.contratos = 40;
-    else if (pctContr <= 0.35) scores.contratos = 25;
-    else scores.contratos = 10;
-  } else scores.contratos = null;
-
-  // 6. Debutantes (max 50)
-  if (v.debutantes !== null) {
-    if (v.debutantes >= 5) scores.debutantes = 50;
-    else if (v.debutantes >= 3) scores.debutantes = 40;
-    else if (v.debutantes >= 2) scores.debutantes = 30;
-    else if (v.debutantes >= 1) scores.debutantes = 20;
-    else scores.debutantes = 5;
-  } else scores.debutantes = null;
-
-  // 7. Balance de transferencias neto (max 50)
-  let netTotal = 0, countSeasons = 0;
-  ['s0','s1','s2','s3','s4'].forEach(s => {
-    const a = v['altas_' + s]; const b = v['bajas_' + s];
-    if (a !== null || b !== null) { netTotal += (a||0) - (b||0); countSeasons++; }
+    const p=v.contratos_club/n;
+    s.contratos = p<=.08?70:p<=.16?55:p<=.25?40:p<=.35?25:10;
+  } else s.contratos=null;
+ 
+  if (v.debutantes !== null)
+    s.debutantes = v.debutantes>=5?50:v.debutantes>=3?40:v.debutantes>=2?30:v.debutantes>=1?20:5;
+  else s.debutantes=null;
+ 
+  let netT=0, cS=0;
+  ['s0','s1','s2','s3','s4'].forEach(x=>{
+    const a=v['altas_'+x],b=v['bajas_'+x];
+    if(a!==null||b!==null){netT+=(a||0)-(b||0);cS++;}
   });
-  if (countSeasons > 0) {
-    const netAvg = netTotal / countSeasons;
-    if (netAvg >= 0) scores.netTransfer = 50;
-    else if (netAvg >= -2) scores.netTransfer = 40;
-    else if (netAvg >= -4) scores.netTransfer = 30;
-    else if (netAvg >= -6) scores.netTransfer = 20;
-    else scores.netTransfer = 5;
-    scores.netAvg = netAvg;
-  } else scores.netTransfer = null;
-
-  // 8. Tamaño plantilla (max 80)
-  if (v.cant_jugadores !== null) {
-    const n = v.cant_jugadores;
-    if (n >= 22 && n <= 28) scores.plantilla = 80;
-    else if (n >= 20 && n <= 30) scores.plantilla = 65;
-    else if (n >= 18 && n <= 32) scores.plantilla = 50;
-    else if (n >= 15 && n <= 35) scores.plantilla = 35;
-    else scores.plantilla = 15;
-  } else scores.plantilla = null;
-
-  // Total
-  const scoreFields = [
-    { key: 'vm', max: 100, label: 'Valor de Mercado' },
-    { key: 'rotacion', max: 80, label: 'Estabilidad Plantilla' },
-    { key: 'edad', max: 70, label: 'Estructura Etaria' },
-    { key: 'lesiones', max: 80, label: 'Salud Plantilla' },
-    { key: 'contratos', max: 70, label: 'Contratos Vigentes' },
-    { key: 'debutantes', max: 50, label: 'Cantera' },
-    { key: 'netTransfer', max: 50, label: 'Balance Transf.' },
-    { key: 'plantilla', max: 80, label: 'Tamaño Plantilla' },
+  if(cS>0){
+    const na=netT/cS;
+    s.netTransfer = na>=0?50:na>=-2?40:na>=-4?30:na>=-6?20:5;
+    s.netAvg=na;
+  } else s.netTransfer=null;
+ 
+  if(v.cant_jugadores!==null){
+    const n2=v.cant_jugadores;
+    s.plantilla = n2>=22&&n2<=28?80:n2>=20&&n2<=30?65:n2>=18&&n2<=32?50:n2>=15&&n2<=35?35:15;
+  } else s.plantilla=null;
+ 
+  const fields=[
+    {key:'vm',max:100,label:'Valor de Mercado'},
+    {key:'rotacion',max:80,label:'Estabilidad Plantilla'},
+    {key:'edad',max:70,label:'Estructura Etaria'},
+    {key:'lesiones',max:80,label:'Salud Plantilla'},
+    {key:'contratos',max:70,label:'Contratos Vigentes'},
+    {key:'debutantes',max:50,label:'Cantera'},
+    {key:'netTransfer',max:50,label:'Balance Transf.'},
+    {key:'plantilla',max:80,label:'Tamaño Plantilla'},
   ];
-
-  let totalScore = 0, totalMaxAvail = 0;
-  scoreFields.forEach(sf => {
-    if (scores[sf.key] !== null && scores[sf.key] !== undefined) {
-      totalScore += scores[sf.key];
-      totalMaxAvail += sf.max;
-    }
+  let tot=0,maxA=0;
+  fields.forEach(f=>{
+    if(s[f.key]!==null&&s[f.key]!==undefined){tot+=s[f.key];maxA+=f.max;}
   });
-
-  // Scale to 580
-  const scaledScore = totalMaxAvail > 0 ? Math.round((totalScore / totalMaxAvail) * 580) : 0;
-  scores.total = scaledScore;
-  scores.fields = scoreFields;
-
-  return scores;
+  s.total = maxA>0?Math.round((tot/maxA)*580):0;
+  s.fields = fields;
+  return s;
 }
-
-// ===================== RENDER SCORE =====================
-function getGrade(score) {
-  if (score > 520) return 'AAA';
-  if (score > 500) return 'AA+';
-  if (score > 480) return 'AA';
-  if (score > 450) return 'AA-';
-  if (score > 420) return 'A+';
-  if (score > 390) return 'A';
-  if (score > 360) return 'A-';
-  if (score > 330) return 'BBB';
-  if (score > 300) return 'BB+';
-  if (score > 270) return 'BB';
-  if (score > 240) return 'B+';
-  if (score > 200) return 'B';
-  return 'CCC';
+ 
+function getGrade(sc){
+  if(sc>520)return'AAA';if(sc>490)return'AA+';if(sc>460)return'AA';
+  if(sc>430)return'A+';if(sc>400)return'A';if(sc>370)return'A-';
+  if(sc>340)return'BBB';if(sc>310)return'BB+';if(sc>280)return'BB';
+  if(sc>250)return'B+';if(sc>210)return'B';return'CCC';
 }
-
-function getScoreColor(score) {
-  if (score > 400) return '#00e5a0';
-  if (score > 280) return '#ffc857';
-  return '#ff4d6d';
-}
-
-function renderScore(scores, v) {
-  const total = scores.total;
-  const grade = getGrade(total);
-  const color = getScoreColor(total);
-
-  // Arc
-  const arc = document.getElementById('scoreArc');
-  const pct = total / 580;
-  const dash = 351.86;
-  arc.style.strokeDashoffset = dash - (pct * dash);
-  arc.style.stroke = color;
-
-  document.getElementById('scoreNum').textContent = total;
-  document.getElementById('scoreNum').style.color = color;
-  document.getElementById('scoreLabel').textContent = total > 400 ? 'RIESGO BAJO' : total > 280 ? 'RIESGO MEDIO' : 'RIESGO ALTO';
-
-  const gradeEl = document.getElementById('scoreGrade');
-  gradeEl.textContent = grade;
-  const gradeClass = grade.startsWith('AAA') ? 'AAA' : grade.startsWith('AA') ? 'AA' : grade.startsWith('A') ? 'A' : grade.startsWith('BBB') ? 'BBB' : grade.startsWith('BB') ? 'BB' : 'B';
-  gradeEl.className = 'score-grade ' + gradeClass;
-
-  // Details
-  const details = document.getElementById('scoreDetails');
-  details.innerHTML = '';
-  scores.fields.forEach(sf => {
-    const val = scores[sf.key];
-    if (val === null || val === undefined) return;
-    const pct = val / sf.max;
-    const barColor = pct > 0.7 ? '#00e5a0' : pct > 0.4 ? '#ffc857' : '#ff4d6d';
-    const row = document.createElement('div');
-    row.className = 'score-row';
-    row.innerHTML = `
-      <span class="sr-label">${sf.label}</span>
-      <div class="sr-bar-wrap"><div class="sr-bar" style="width:${pct*100}%;background:${barColor}"></div></div>
-      <span class="sr-val" style="color:${barColor}">${val}</span>
-      <span class="sr-max">/${sf.max}</span>
-    `;
-    details.appendChild(row);
+function gradeClass(sc){return sc>400?'top':sc>280?'mid':'low';}
+function scoreColor(sc){return sc>400?'#163029':sc>280?'#6fa087':'#b85c40';}
+ 
+function renderScore(s) {
+  const tot=s.total, gr=getGrade(tot), gc=gradeClass(tot), col=scoreColor(tot);
+  const arc=document.getElementById('scoreArc');
+  const pct=tot/580;
+  arc.style.strokeDashoffset = 339.29-(pct*339.29);
+  arc.style.stroke = col;
+  document.getElementById('scoreNum').textContent = tot;
+  document.getElementById('scoreNum').style.color = '#F9F1E8';
+  document.getElementById('scoreLabel').textContent = tot>400?'RIESGO BAJO':tot>280?'RIESGO MEDIO':'RIESGO ALTO';
+  const gb=document.getElementById('scoreGrade');
+  gb.textContent=gr; gb.className='score-grade-badge '+gc;
+ 
+  const det=document.getElementById('scoreDetails');
+  det.innerHTML='';
+  s.fields.forEach(f=>{
+    const val=s[f.key];
+    if(val===null||val===undefined)return;
+    const pct2=val/f.max;
+    const fc=pct2>.7?'#163029':pct2>.4?'#6fa087':'#b85c40';
+    const row=document.createElement('div');
+    row.className='score-bar-row';
+    row.innerHTML=`<span class="sbr-label">${f.label}</span>
+      <div class="sbr-bar"><div class="sbr-fill" style="width:${pct2*100}%;background:${fc}"></div></div>
+      <span class="sbr-val" style="color:${fc}">${val}</span>
+      <span class="sbr-max">/${f.max}</span>`;
+    det.appendChild(row);
   });
 }
-
-// ===================== PROBABILIDADES =====================
-function renderProbabilidades(scores, v) {
-  const total = scores.total;
-  const equipos = v.cant_equipos || selectedClub.equipos_liga || 20;
-  const descensoSlots = Math.floor(equipos * 0.15);
-  const campeonSlots = 1;
-  const europaSlots = Math.min(4, Math.floor(equipos * 0.2));
-
-  // Model basado en percentil del score
-  const pct = total / 580;
-
-  // Probabilidad campeón: función sigmoidal del score
-  const pCampeon = Math.max(0.5, Math.min(65, Math.round(
-    (1 / (1 + Math.exp(-8 * (pct - 0.75)))) * 60 + (pct > 0.85 ? 10 : 0)
-  )));
-
-  // Probabilidad descenso: inverso
-  const pDescenso = Math.max(0.5, Math.min(70, Math.round(
-    (1 / (1 + Math.exp(8 * (pct - 0.45)))) * 55 + 2
-  )));
-
-  // Probabilidad zona europea
-  const pEuropa = Math.max(1, Math.min(75, Math.round(
-    (1 / (1 + Math.exp(-6 * (pct - 0.65)))) * 60 + 5
-  )));
-
-  // VaR ajustado para las probs
-  const varDescenso = Math.min(pDescenso * 1.4, 95);
-
-  const probSection = document.getElementById('probSection');
-  const probGrid = document.getElementById('probGrid');
-  probGrid.innerHTML = `
+ 
+function renderProb(s, v) {
+  const tot=s.total, eq=v.cant_equipos||selectedClub.equipos_liga||20;
+  const pct=tot/580;
+  const pC=Math.max(1,Math.min(60,Math.round((1/(1+Math.exp(-8*(pct-.75))))*55+(pct>.85?8:0))));
+  const pD=Math.max(1,Math.min(65,Math.round((1/(1+Math.exp(8*(pct-.45))))*55+2)));
+  const pE=Math.max(2,Math.min(70,Math.round((1/(1+Math.exp(-6*(pct-.65))))*55+5)));
+  const europaSlots=Math.min(4,Math.floor(eq*.2));
+ 
+  document.getElementById('probGrid').innerHTML=`
     <div class="prob-card">
-      <div class="pc-label">🏆 Probabilidad Campeón</div>
-      <div class="pc-val green">${pCampeon}%</div>
-      <div class="pc-bar"><div class="pc-fill" style="width:${pCampeon}%;background:var(--accent)"></div></div>
-      <div class="pc-desc">Basado en score deportivo vs benchmarks de liga</div>
+      <div class="prob-card-geo" style="background:var(--financial-green)"></div>
+      <div class="prob-card-label">🏆 Probabilidad Campeón</div>
+      <div class="prob-val green">${pC}%</div>
+      <div class="prob-bar"><div class="prob-fill" style="width:${pC}%;background:var(--financial-green)"></div></div>
+      <div class="prob-desc">Score deportivo vs promedio histórico de campeones de liga</div>
     </div>
     <div class="prob-card">
-      <div class="pc-label">🌍 Zona Internacional</div>
-      <div class="pc-val yellow">${pEuropa}%</div>
-      <div class="pc-bar"><div class="pc-fill" style="width:${pEuropa}%;background:var(--accent3)"></div></div>
-      <div class="pc-desc">Top ${europaSlots} posiciones de ${equipos} equipos</div>
+      <div class="prob-card-geo" style="background:var(--human-vert)"></div>
+      <div class="prob-card-label">🌍 Zona Internacional</div>
+      <div class="prob-val vert">${pE}%</div>
+      <div class="prob-bar"><div class="prob-fill" style="width:${pE}%;background:var(--human-vert)"></div></div>
+      <div class="prob-desc">Top ${europaSlots} posiciones de ${eq} equipos en competición</div>
     </div>
     <div class="prob-card">
-      <div class="pc-label">⬇ Probabilidad Descenso</div>
-      <div class="pc-val red">${pDescenso}%</div>
-      <div class="pc-bar"><div class="pc-fill" style="width:${pDescenso}%;background:var(--accent2)"></div></div>
-      <div class="pc-desc">${descensoSlots} puestos de descenso en liga de ${equipos}</div>
+      <div class="prob-card-geo" style="background:#b85c40"></div>
+      <div class="prob-card-label">⬇ Probabilidad de Descenso</div>
+      <div class="prob-val warm">${pD}%</div>
+      <div class="prob-bar"><div class="prob-fill" style="width:${pD}%;background:#b85c40"></div></div>
+      <div class="prob-desc">${Math.floor(eq*.15)} puestos de descenso en liga de ${eq} equipos</div>
     </div>
   `;
-
-  return { pCampeon, pDescenso, pEuropa };
 }
-
-// ===================== VaR NO PARAMÉTRICO =====================
-function renderVaR(scores, v) {
-  const total = scores.total;
-
-  // Simular distribución histórica de scores (bootstrap no paramétrico con los datos disponibles)
-  const scoreComponents = scores.fields.map(sf => {
-    const val = scores[sf.key];
-    return val !== null && val !== undefined ? val / sf.max : null;
-  }).filter(x => x !== null);
-
-  if (scoreComponents.length === 0) return;
-
-  // Bootstrap: generar 10000 simulaciones re-muestreando componentes con ruido
-  const simulations = [];
-  for (let i = 0; i < 10000; i++) {
-    let sim = 0;
-    scores.fields.forEach(sf => {
-      const val = scores[sf.key];
-      if (val === null || val === undefined) return;
-      // Agregar ruido gaussiano ±15% del rango
-      const noise = (Math.random() - 0.5) * 0.3 * sf.max;
-      sim += Math.max(0, Math.min(sf.max, val + noise));
+ 
+function renderVaR(s, v) {
+  const tot=s.total;
+  const sims=[];
+  for(let i=0;i<10000;i++){
+    let sim=0;
+    s.fields.forEach(f=>{
+      const val=s[f.key];
+      if(val===null||val===undefined)return;
+      const noise=(Math.random()-.5)*.3*f.max;
+      sim+=Math.max(0,Math.min(f.max,val+noise));
     });
-    // Escalar a 580
-    const totalMax = scores.fields.reduce((acc, sf) => scores[sf.key] !== null && scores[sf.key] !== undefined ? acc + sf.max : acc, 0);
-    simulations.push(Math.round((sim / totalMax) * 580));
+    const maxA=s.fields.reduce((a,f)=>s[f.key]!==null&&s[f.key]!==undefined?a+f.max:a,0);
+    sims.push(Math.round((sim/maxA)*580));
   }
-
-  simulations.sort((a, b) => a - b);
-
-  const var99 = simulations[Math.floor(0.01 * simulations.length)]; // 1% peor caso
-  const var95 = simulations[Math.floor(0.05 * simulations.length)]; // 5% peor caso
-  const median = simulations[Math.floor(0.5 * simulations.length)];
-  const mean = Math.round(simulations.reduce((a,b)=>a+b,0)/simulations.length);
-  const scoreDropAbs = total - var99;
-  const scoreDropPct = ((total - var99) / total * 100).toFixed(1);
-
-  // Probabilidades de descenso en worst case
-  const equipos = v.cant_equipos || selectedClub.equipos_liga || 20;
-  const gradeWC = getGrade(var99);
-
-  document.getElementById('varGrid').innerHTML = `
-    <div class="var-metric">
-      <div class="vm-label">VaR Score (99% confianza)</div>
-      <div class="vm-val" style="color:var(--accent2)">${var99}</div>
-      <div class="vm-desc">Score mínimo esperado con 99% de confianza — Grade: ${gradeWC}</div>
+  sims.sort((a,b)=>a-b);
+  const var99=sims[Math.floor(.01*sims.length)];
+  const var95=sims[Math.floor(.05*sims.length)];
+  const med=sims[Math.floor(.5*sims.length)];
+  const mean=Math.round(sims.reduce((a,b)=>a+b,0)/sims.length);
+  const drop=tot-var99; const dropPct=((drop/tot)*100).toFixed(1);
+  const p25=sims[Math.floor(.25*sims.length)];
+  const p75=sims[Math.floor(.75*sims.length)];
+ 
+  document.getElementById('varGrid').innerHTML=`
+    <div class="var-card">
+      <div class="var-card-label">VaR Score — 99% confianza</div>
+      <div class="var-card-val">${var99} pts</div>
+      <div class="var-card-desc">Score mínimo esperado · Grade: ${getGrade(var99)}</div>
     </div>
-    <div class="var-metric yellow">
-      <div class="vm-label">VaR Score (95% confianza)</div>
-      <div class="vm-val" style="color:var(--accent3)">${var95}</div>
-      <div class="vm-desc">Percentil 5 de la distribución simulada (10k runs)</div>
+    <div class="var-card yellow">
+      <div class="var-card-label">VaR Score — 95% confianza</div>
+      <div class="var-card-val">${var95} pts</div>
+      <div class="var-card-desc">Percentil 5 · 10.000 simulaciones bootstrap</div>
     </div>
-    <div class="var-metric green">
-      <div class="vm-label">Score Esperado (Media)</div>
-      <div class="vm-val" style="color:var(--accent)">${mean}</div>
-      <div class="vm-desc">Media de 10.000 simulaciones bootstrap con ruido ±15%</div>
+    <div class="var-card light">
+      <div class="var-card-label">Score Esperado (Media)</div>
+      <div class="var-card-val">${mean} pts</div>
+      <div class="var-card-desc">Media de distribución simulada con ruido ±15%</div>
     </div>
-    <div class="var-metric">
-      <div class="vm-label">Caída Máxima (99%)</div>
-      <div class="vm-val" style="color:var(--accent2)">-${scoreDropAbs} pts</div>
-      <div class="vm-desc">${scoreDropPct}% de deterioro del score base actual</div>
+    <div class="var-card">
+      <div class="var-card-label">Caída Máxima Estimada</div>
+      <div class="var-card-val">−${drop} pts</div>
+      <div class="var-card-desc">${dropPct}% de deterioro desde score base</div>
     </div>
-    <div class="var-metric yellow">
-      <div class="vm-label">Mediana Simulada</div>
-      <div class="vm-val" style="color:var(--accent3)">${median}</div>
-      <div class="vm-desc">Percentil 50 — escenario central esperado</div>
+    <div class="var-card yellow">
+      <div class="var-card-label">Mediana Simulada</div>
+      <div class="var-card-val">${med} pts</div>
+      <div class="var-card-desc">Escenario central P50 de la distribución</div>
     </div>
-    <div class="var-metric green">
-      <div class="vm-label">Rango Interquartil</div>
-      <div class="vm-val" style="color:var(--accent)">${simulations[Math.floor(0.25*simulations.length)]}–${simulations[Math.floor(0.75*simulations.length)]}</div>
-      <div class="vm-desc">P25–P75: zona de confort estadístico</div>
+    <div class="var-card light">
+      <div class="var-card-label">Rango Intercuartil (P25–P75)</div>
+      <div class="var-card-val">${p25}–${p75}</div>
+      <div class="var-card-desc">Zona de confort estadístico del score</div>
     </div>
   `;
 }
-
-// ===================== TRANSFERENCIAS =====================
-function renderTransferencias(v) {
-  const seasons = [
-    { label: 'Season actual', altas: v.altas_s0, bajas: v.bajas_s0 },
-    { label: 'Season -1', altas: v.altas_s1, bajas: v.bajas_s1 },
-    { label: 'Season -2', altas: v.altas_s2, bajas: v.bajas_s2 },
-    { label: 'Season -3', altas: v.altas_s3, bajas: v.bajas_s3 },
-    { label: 'Season -4', altas: v.altas_s4, bajas: v.bajas_s4 },
-  ].filter(s => s.altas !== null || s.bajas !== null);
-
-  if (seasons.length === 0) return;
-
-  const maxVal = Math.max(...seasons.flatMap(s => [s.altas||0, s.bajas||0]), 1);
-  const chart = document.getElementById('transferChart');
-  chart.innerHTML = `
-    <div style="display:flex;gap:16px;margin-bottom:8px;font-size:11px;color:var(--muted);font-family:Space Mono">
-      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:var(--accent);border-radius:2px;display:inline-block"></span>ALTAS</span>
-      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:var(--accent2);border-radius:2px;display:inline-block"></span>BAJAS</span>
-    </div>
-  `;
-
-  seasons.forEach(s => {
-    const a = s.altas || 0;
-    const b = s.bajas || 0;
-    const net = a - b;
-    const netColor = net >= 0 ? 'var(--accent)' : 'var(--accent2)';
-    const aW = Math.round((a / maxVal) * 150);
-    const bW = Math.round((b / maxVal) * 150);
-    const row = document.createElement('div');
-    row.className = 'transfer-row';
-    row.innerHTML = `
-      <span class="tr-label">${s.label}</span>
+ 
+function renderTransfer(v) {
+  const seasons=[
+    {l:'Season actual',a:v.altas_s0,b:v.bajas_s0},
+    {l:'Season −1',a:v.altas_s1,b:v.bajas_s1},
+    {l:'Season −2',a:v.altas_s2,b:v.bajas_s2},
+    {l:'Season −3',a:v.altas_s3,b:v.bajas_s3},
+    {l:'Season −4',a:v.altas_s4,b:v.bajas_s4},
+  ].filter(s=>s.a!==null||s.b!==null);
+  if(!seasons.length){document.getElementById('transferBlock').classList.add('hidden');return;}
+  const mx=Math.max(...seasons.flatMap(s=>[s.a||0,s.b||0]),1);
+  const ch=document.getElementById('transferChart');
+  ch.innerHTML='';
+  seasons.forEach(s=>{
+    const a=s.a||0,b=s.b||0,net=a-b;
+    const aw=Math.round((a/mx)*160),bw=Math.round((b/mx)*160);
+    const row=document.createElement('div');
+    row.className='transfer-row';
+    row.innerHTML=`<span class="tr-label">${s.l}</span>
       <div class="tr-bars">
-        <div class="tr-in" style="width:${aW}px">${a}</div>
-        <div class="tr-out" style="width:${bW}px">${b}</div>
-        <span style="font-family:Space Mono;font-size:11px;margin-left:8px;color:${netColor}">
-          ${net >= 0 ? '+' : ''}${net}
-        </span>
+        <div class="tr-bar-in" style="width:${aw}px">${a}</div>
+        <div class="tr-bar-out" style="width:${bw}px">${b}</div>
       </div>
-    `;
-    chart.appendChild(row);
+      <span class="tr-net ${net>=0?'pos':'neg'}">${net>=0?'+':''}${net}</span>`;
+    ch.appendChild(row);
   });
 }
-
-// ===================== MATRIZ DETALLADA =====================
-function renderMatriz(scores, v) {
-  const tbody = document.getElementById('riskTableBody');
-  tbody.innerHTML = '';
-
-  const rows = [
-    {
-      label: 'Valor de Mercado vs Liga',
-      val: v.vm_club !== null ? '€' + v.vm_club + 'M' : '—',
-      bench: v.vm_liga !== null ? '€' + (v.vm_liga / (v.cant_equipos||20)).toFixed(1) + 'M avg' : '—',
-      ratio: v.vm_club !== null && v.vm_liga ? (v.vm_club / (v.vm_liga / (v.cant_equipos||20))).toFixed(2) + 'x' : '—',
-      score: scores.vm, max: 100
-    },
-    {
-      label: 'Estabilidad Plantilla (Rotación)',
-      val: scores.avgRot !== undefined ? (scores.avgRot * 100).toFixed(1) + '% avg' : '—',
-      bench: '< 20% por temporada',
-      ratio: scores.tendenciaRot !== undefined ? (scores.tendenciaRot > 0 ? '↑ Aumentando' : '↓ Estable') : '—',
-      score: scores.rotacion, max: 80
-    },
-    {
-      label: 'Estructura Etaria',
-      val: v.edad_prom_club !== null ? v.edad_prom_club + ' años' : '—',
-      bench: v.edad_prom_liga !== null ? v.edad_prom_liga + ' años (liga)' : '24–27 años',
-      ratio: v.edad_prom_club !== null && v.edad_prom_liga !== null ? ((v.edad_prom_club - v.edad_prom_liga) > 0 ? '+' : '') + (v.edad_prom_club - v.edad_prom_liga).toFixed(1) + ' vs liga' : '—',
-      score: scores.edad, max: 70
-    },
-    {
-      label: 'Salud Plantilla (Lesiones)',
-      val: v.lesionados_club !== null ? v.lesionados_club + ' lesionados' : '—',
-      bench: v.lesionados_liga !== null ? v.lesionados_liga + ' avg liga' : '< 3 lesionados',
-      ratio: v.lesionados_club !== null && v.cant_jugadores ? (v.lesionados_club / v.cant_jugadores * 100).toFixed(1) + '% plantilla' : '—',
-      score: scores.lesiones, max: 80
-    },
-    {
-      label: 'Contratos a Vencer',
-      val: v.contratos_club !== null ? v.contratos_club + ' jugadores' : '—',
-      bench: v.contratos_liga !== null ? v.contratos_liga + ' avg liga' : '< 20% plantilla',
-      ratio: v.contratos_club !== null && v.cant_jugadores ? (v.contratos_club / v.cant_jugadores * 100).toFixed(1) + '% plantilla' : '—',
-      score: scores.contratos, max: 70
-    },
-    {
-      label: 'Cantera / Debutantes (3T)',
-      val: v.debutantes !== null ? v.debutantes + ' debutantes' : '—',
-      bench: '≥ 3 en 3 temporadas',
-      ratio: v.debutantes !== null && v.cant_jugadores ? (v.debutantes / v.cant_jugadores * 100).toFixed(1) + '% plantilla' : '—',
-      score: scores.debutantes, max: 50
-    },
-    {
-      label: 'Balance Neto Transferencias',
-      val: scores.netAvg !== undefined ? (scores.netAvg >= 0 ? '+' : '') + scores.netAvg.toFixed(1) + ' avg/T' : '—',
-      bench: '≥ 0 (equilibrado)',
-      ratio: scores.netAvg !== undefined ? (scores.netAvg >= 0 ? 'Ganancia neta' : 'Pérdida neta') : '—',
-      score: scores.netTransfer, max: 50
-    },
-    {
-      label: 'Tamaño de Plantilla',
-      val: v.cant_jugadores !== null ? v.cant_jugadores + ' jugadores' : '—',
-      bench: '22–28 jugadores',
-      ratio: v.cant_jugadores !== null ? (v.cant_jugadores >= 22 && v.cant_jugadores <= 28 ? 'Óptimo' : v.cant_jugadores < 22 ? 'Reducida' : 'Grande') : '—',
-      score: scores.plantilla, max: 80
-    },
+ 
+function renderMatriz(s, v) {
+  const eq=v.cant_equipos||selectedClub.equipos_liga||20;
+  const n=v.cant_jugadores||25;
+  const rows=[
+    {label:'Valor de Mercado vs Liga',val:v.vm_club!==null?'€'+v.vm_club+'M':'—',bench:v.vm_liga!==null?'€'+(v.vm_liga/eq).toFixed(1)+'M avg':'—',ratio:v.vm_club&&v.vm_liga?(v.vm_club/(v.vm_liga/eq)).toFixed(2)+'x':'—',sc:s.vm,max:100},
+    {label:'Estabilidad (Rotación)',val:s.avgRot!==undefined?(s.avgRot*100).toFixed(1)+'%':'—',bench:'< 20% por temporada',ratio:s.tendencia!==undefined?(s.tendencia>0?'↑ Aumentando':'↓ Estable'):'—',sc:s.rotacion,max:80},
+    {label:'Estructura Etaria',val:v.edad_prom_club!==null?v.edad_prom_club+' años':'—',bench:v.edad_prom_liga!==null?v.edad_prom_liga+' años liga':'24–27 años',ratio:v.edad_prom_club&&v.edad_prom_liga?((v.edad_prom_club-v.edad_prom_liga)>0?'+':'')+(v.edad_prom_club-v.edad_prom_liga).toFixed(1)+' vs liga':'—',sc:s.edad,max:70},
+    {label:'Salud Plantilla (Lesiones)',val:v.lesionados_club!==null?v.lesionados_club+' lesionados':'—',bench:'< 3 lesionados',ratio:v.lesionados_club!==null?(v.lesionados_club/n*100).toFixed(1)+'% plantilla':'—',sc:s.lesiones,max:80},
+    {label:'Contratos a Vencer',val:v.contratos_club!==null?v.contratos_club+' jugadores':'—',bench:'< 20% plantilla',ratio:v.contratos_club!==null?(v.contratos_club/n*100).toFixed(1)+'% plantilla':'—',sc:s.contratos,max:70},
+    {label:'Cantera / Debutantes (3T)',val:v.debutantes!==null?v.debutantes+' debut.':'—',bench:'≥ 3 en 3 temporadas',ratio:v.debutantes!==null&&n?(v.debutantes/n*100).toFixed(1)+'% plantilla':'—',sc:s.debutantes,max:50},
+    {label:'Balance Neto Transferencias',val:s.netAvg!==undefined?(s.netAvg>=0?'+':'')+s.netAvg.toFixed(1)+' avg/T':'—',bench:'≥ 0',ratio:s.netAvg!==undefined?(s.netAvg>=0?'Ganancia neta':'Pérdida neta'):'—',sc:s.netTransfer,max:50},
+    {label:'Tamaño de Plantilla',val:v.cant_jugadores!==null?v.cant_jugadores+' jugadores':'—',bench:'22–28 jugadores',ratio:v.cant_jugadores!==null?(v.cant_jugadores>=22&&v.cant_jugadores<=28?'Óptimo':v.cant_jugadores<22?'Reducida':'Grande'):'—',sc:s.plantilla,max:80},
   ];
-
-  rows.forEach(r => {
-    if (r.score === null || r.score === undefined) return;
-    const pct = r.score / r.max;
-    const level = pct > 0.7 ? 'low' : pct > 0.4 ? 'mid' : 'high';
-    const levelTxt = pct > 0.7 ? 'BAJO' : pct > 0.4 ? 'MEDIO' : 'ALTO';
-    const color = pct > 0.7 ? 'var(--accent)' : pct > 0.4 ? 'var(--accent3)' : 'var(--accent2)';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${r.label}</td>
-      <td style="font-family:Space Mono;font-size:12px">${r.val}</td>
-      <td style="color:var(--muted);font-size:12px">${r.bench}</td>
-      <td style="font-family:Space Mono;font-size:12px">${r.ratio}</td>
-      <td><span class="risk-dot ${level}"></span>${levelTxt}</td>
-      <td style="font-family:Space Mono;color:${color}">${r.score}/${r.max}</td>
-    `;
-    tbody.appendChild(tr);
+  const tb=document.getElementById('riskTableBody');
+  tb.innerHTML='';
+  rows.forEach(r=>{
+    if(r.sc===null||r.sc===undefined)return;
+    const pct=r.sc/r.max;
+    const lv=pct>.7?'low':pct>.4?'mid':'high';
+    const lt=pct>.7?'BAJO':pct>.4?'MEDIO':'ALTO';
+    const col=pct>.7?'var(--financial-green)':pct>.4?'var(--human-vert)':'#b85c40';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><b>${r.label}</b></td><td>${r.val}</td><td style="color:var(--text-muted)">${r.bench}</td><td style="font-weight:500">${r.ratio}</td>
+      <td><span class="risk-dot ${lv}"></span>${lt}</td>
+      <td style="font-weight:700;color:${col}">${r.sc}/${r.max}</td>`;
+    tb.appendChild(tr);
   });
-
-  // Totals row
-  const totalScore = scores.total;
-  const tr = document.createElement('tr');
-  tr.style.fontWeight = '600';
-  tr.style.borderTop = '2px solid var(--border)';
-  const totalColor = getScoreColor(totalScore);
-  tr.innerHTML = `
-    <td colspan="5" style="font-family:Bebas Neue;letter-spacing:2px;font-size:14px;">SCORE TOTAL (ESCALADO)</td>
-    <td style="font-family:Space Mono;font-size:14px;color:${totalColor}">${totalScore}/580</td>
-  `;
-  tbody.appendChild(tr);
+  const col=scoreColor(s.total);
+  document.getElementById('riskTableFoot').innerHTML=`<tr><td colspan="5" style="letter-spacing:.08em;font-size:13px;">SCORE TOTAL ESCALADO</td><td>${s.total}/580</td></tr>`;
 }
-
-// ===================== MÉTRICAS =====================
-function renderMetricas(v) {
-  const grid = document.getElementById('metricsGrid');
-  grid.innerHTML = '';
-
-  const metricas = [
-    { label: 'Plantilla', val: v.cant_jugadores !== null ? v.cant_jugadores : '—', sub: 'jugadores totales', cls: v.cant_jugadores && v.cant_jugadores >= 22 && v.cant_jugadores <= 28 ? 'highlight' : '' },
-    { label: 'Valor Mercado', val: v.vm_club !== null ? '€' + v.vm_club + 'M' : '—', sub: 'valor mercado club', cls: '' },
-    { label: 'Edad Promedio', val: v.edad_prom_club !== null ? v.edad_prom_club : '—', sub: 'años de promedio', cls: v.edad_prom_club && v.edad_prom_club >= 24 && v.edad_prom_club <= 27 ? 'highlight' : v.edad_prom_club && v.edad_prom_club > 29 ? 'warning' : '' },
-    { label: 'Lesionados', val: v.lesionados_club !== null ? v.lesionados_club : '—', sub: 'jugadores fuera', cls: v.lesionados_club && v.lesionados_club > 4 ? 'danger' : v.lesionados_club && v.lesionados_club > 2 ? 'warning' : 'highlight' },
-    { label: 'Contratos Vencen', val: v.contratos_club !== null ? v.contratos_club : '—', sub: 'al final de temporada', cls: v.contratos_club && v.contratos_liga && v.contratos_club > v.contratos_liga ? 'warning' : '' },
-    { label: 'Debutantes', val: v.debutantes !== null ? v.debutantes : '—', sub: 'últimas 3 temporadas', cls: v.debutantes && v.debutantes >= 3 ? 'highlight' : 'warning' },
-    { label: 'Altas Season', val: v.altas_s0 !== null ? v.altas_s0 : '—', sub: 'incorporaciones', cls: '' },
-    { label: 'Bajas Season', val: v.bajas_s0 !== null ? v.bajas_s0 : '—', sub: 'salidas', cls: '' },
-    { label: 'Net Transfer', val: v.altas_s0 !== null && v.bajas_s0 !== null ? (v.altas_s0 - v.bajas_s0 >= 0 ? '+' : '') + (v.altas_s0 - v.bajas_s0) : '—', sub: 'balance temporada actual', cls: v.altas_s0 !== null && v.bajas_s0 !== null && v.altas_s0 - v.bajas_s0 >= 0 ? 'highlight' : 'warning' },
-    { label: 'Equipos Liga', val: v.cant_equipos || selectedClub.equipos_liga || '—', sub: 'en competición', cls: '' },
-    { label: 'VM / Avg Liga', val: v.vm_club !== null && v.vm_liga !== null ? (v.vm_club / (v.vm_liga / (v.cant_equipos||20))).toFixed(2) + 'x' : '—', sub: 'vs promedio de liga', cls: '' },
-    { label: 'Score Total', val: scores.total || '—', sub: '/ 580 puntos', cls: scores.total > 400 ? 'highlight' : scores.total > 280 ? 'warning' : 'danger' },
+ 
+function renderMetrics(s, v) {
+  const gd=document.getElementById('metricsGrid');
+  gd.innerHTML='';
+  const items=[
+    {l:'Plantilla',v:v.cant_jugadores||'—',s:'jugadores totales',c:v.cant_jugadores&&v.cant_jugadores>=22&&v.cant_jugadores<=28?'good':'warn'},
+    {l:'Valor Mercado',v:v.vm_club!==null?'€'+v.vm_club+'M':'—',s:'valor club',c:''},
+    {l:'Edad Promedio',v:v.edad_prom_club||'—',s:'años promedio',c:v.edad_prom_club&&v.edad_prom_club>=24&&v.edad_prom_club<=27?'good':v.edad_prom_club&&v.edad_prom_club>29?'bad':'warn'},
+    {l:'Lesionados',v:v.lesionados_club!==null?v.lesionados_club:'—',s:'jugadores fuera',c:v.lesionados_club!==null&&v.lesionados_club>4?'bad':v.lesionados_club!==null&&v.lesionados_club>2?'warn':'good'},
+    {l:'Contratos/Vencer',v:v.contratos_club!==null?v.contratos_club:'—',s:'al cierre de temporada',c:v.contratos_club!==null&&v.cant_jugadores&&v.contratos_club/v.cant_jugadores>.3?'bad':'warn'},
+    {l:'Debutantes',v:v.debutantes!==null?v.debutantes:'—',s:'últ. 3 temporadas',c:v.debutantes!==null&&v.debutantes>=3?'good':'warn'},
+    {l:'Altas Season',v:v.altas_s0!==null?v.altas_s0:'—',s:'incorporaciones',c:''},
+    {l:'Bajas Season',v:v.bajas_s0!==null?v.bajas_s0:'—',s:'salidas',c:''},
+    {l:'Net Transfer',v:v.altas_s0!==null&&v.bajas_s0!==null?(v.altas_s0-v.bajas_s0>=0?'+':'')+(v.altas_s0-v.bajas_s0):'—',s:'balance temporada',c:v.altas_s0!==null&&v.bajas_s0!==null&&v.altas_s0-v.bajas_s0>=0?'good':'bad'},
+    {l:'Equipos Liga',v:v.cant_equipos||selectedClub.equipos_liga||'—',s:'en competición',c:''},
+    {l:'Ratio VM/Liga',v:v.vm_club&&v.vm_liga&&v.cant_equipos?(v.vm_club/(v.vm_liga/v.cant_equipos)).toFixed(2)+'x':'—',s:'vs promedio de liga',c:''},
+    {l:'Score Total',v:s.total||'—',s:'/ 580 puntos',c:s.total>400?'good':s.total>280?'warn':'bad'},
   ];
-
-  // workaround: scores is not in scope here directly
-  const scoreTotal = document.getElementById('scoreNum').textContent;
-  metricas[metricas.length - 1].val = scoreTotal;
-
-  metricas.forEach(m => {
-    const card = document.createElement('div');
-    card.className = 'metric-card ' + (m.cls || '');
-    card.innerHTML = `<div class="mc-label">${m.label}</div><div class="mc-value">${m.val}</div><div class="mc-sub">${m.sub}</div>`;
-    grid.appendChild(card);
+  items.forEach(m=>{
+    const card=document.createElement('div');
+    card.className='metric-card'+(m.c?' '+m.c:'');
+    card.innerHTML=`<div class="mc-label">${m.l}</div><div class="mc-val">${m.v}</div><div class="mc-sub">${m.s}</div>`;
+    gd.appendChild(card);
   });
 }
-
-// Keep scores in outer scope for metricas
-let scores = {};
-const origCalc = calcularRiesgo;
-function calcularRiesgo() {
-  if (!selectedClub) return;
-  const v2 = {};
-  const ids = ['cant_jugadores','vm_club','edad_prom_club','edad_prom_liga','vm_liga','debutantes','lesionados_club','lesionados_liga','contratos_club','contratos_liga','cant_equipos','altas_s0','bajas_s0','altas_s1','bajas_s1','altas_s2','bajas_s2','altas_s3','bajas_s3','altas_s4','bajas_s4'];
-  ids.forEach(id => v2[id] = getVal(id));
-  v2.cant_equipos = v2.cant_equipos || selectedClub.equipos_liga;
-  scores = calcScores(v2);
-  renderScore(scores, v2);
-  renderProbabilidades(scores, v2);
-  renderVaR(scores, v2);
-  renderTransferencias(v2);
-  renderMatriz(scores, v2);
-  renderMetricas(v2);
-  ['probSection','transferSection','matrizSection','metricsSection'].forEach(id => document.getElementById(id).classList.remove('hidden'));
-  document.getElementById('varSection').style.display = '';
-}
-
+ 
+function scoreColor(sc){return sc>400?'#163029':sc>280?'#6fa087':'#b85c40';}
+ 
 init();
 </script>
 </body>
+</html>
 </html>
